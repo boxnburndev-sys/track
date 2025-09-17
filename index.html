@@ -3,244 +3,418 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Blackbox — Immersive Operator Console</title>
+<title>Blackbox — Polished Operator Suite</title>
 <style>
 :root{
-  --bg:#020512;
-  --panel:#08121a;
-  --muted:#7aa3ae;
+  --bg:#050814;
+  --panel:#081321;
+  --muted:#88aeb3;
   --accent:#00ffd5;
-  --accent2:#6d5eff;
-  --danger:#ff5577;
+  --accent2:#7b61ff;
   --glass:rgba(255,255,255,0.03);
+  --success:#6ef0b0;
+  --danger:#ff6b6b;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
 }
 *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
-html,body{height:100%;margin:0;background:radial-gradient(1000px 500px at 8% 10%,#06172a 0%,transparent 20%),linear-gradient(180deg,#01040a 0%,#061022 100%);color:#d6f7f0}
-body{display:flex;flex-direction:column;min-height:100vh}
-#login,#app{flex:1;display:none}
-#login{align-items:center;justify-content:center;display:flex;padding:20px}
-.card{background:linear-gradient(180deg,var(--glass),transparent);border-radius:14px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
-.login-card{width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px;border-radius:12px}
-.login-card h2{margin:0;text-align:center;font-size:20px}
-.input{padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;width:100%}
-.button{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
-.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#041014}
-.ghost{background:transparent;border:1px solid rgba(255,255,255,0.05);color:var(--muted)}
-.app{display:grid;grid-template-columns:300px 1fr 420px;gap:16px;padding:16px;align-items:start}
-.sidebar{display:flex;flex-direction:column;gap:12px}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,#020417 0%,#061027 100%);color:#d8f5f2}
+a{color:inherit}
+.app{min-height:100vh;display:grid;grid-template-columns:280px 1fr 360px;gap:18px;padding:18px}
+.header-bar{grid-column:1/4;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:12px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{display:flex;align-items:center;gap:12px}
-.logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:900;color:#041014}
-.title{font-weight:800}
-.sub{font-size:12px;color:var(--muted)}
-.nav{display:flex;flex-direction:column;gap:8px}
-.nav button{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--muted);text-align:left;cursor:pointer}
-.nav button.active{border-color:rgba(0,255,213,0.12);color:var(--accent)}
-.stat{padding:10px;border-radius:10px;background:rgba(255,255,255,0.02)}
-.header{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent)}
-.header h1{margin:0;font-size:18px}
-.controls{display:flex;gap:8px}
-.terminal-panel{background:#010611;border-radius:12px;padding:12px;display:flex;flex-direction:column;height:680px;overflow:hidden}
-.terminal-lines{flex:1;overflow:auto;padding:8px;border-radius:8px;background:linear-gradient(180deg,rgba(0,0,0,0.15),transparent);font-family:ui-monospace,monospace;color:#9ff3e8}
+.logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:900;color:#041018}
+.title{font-weight:800;font-size:18px}
+.controls{display:flex;gap:8px;align-items:center}
+.btn{padding:8px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+.btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#041018}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+.left-nav{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:14px;border-radius:12px;display:flex;flex-direction:column;gap:12px;height:calc(100vh - 72px);overflow:auto}
+.nav-section{display:flex;flex-direction:column;gap:8px}
+.nav-section button{display:flex;gap:12px;align-items:center;padding:10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.02);color:var(--muted);cursor:pointer;text-align:left}
+.nav-section button.active{border-color:rgba(0,255,213,0.12);color:var(--accent)}
+.side-stats{margin-top:auto;display:flex;flex-direction:column;gap:8px}
+.stat{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:rgba(255,255,255,0.01)}
+.center-panel{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:12px;padding:14px;min-height:calc(100vh - 72px);overflow:auto}
+.right-panel{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:12px;padding:14px;min-height:calc(100vh - 72px);overflow:auto}
+.console{background:#010611;border-radius:10px;padding:12px;height:520px;display:flex;flex-direction:column}
+.lines{flex:1;overflow:auto;padding:8px;border-radius:8px;background:linear-gradient(180deg,rgba(0,0,0,0.15),transparent);font-family:var(--mono);color:#9ff3e8}
 .line{white-space:pre-wrap;margin:2px 0}
-.prompt-row{display:flex;gap:8px;padding-top:8px}
-.input-line{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
-.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
-.quick-grid button{padding:8px;border-radius:8px;border:0;cursor:pointer;background:rgba(255,255,255,0.02);color:var(--muted)}
-.side-right{display:flex;flex-direction:column;gap:12px}
-.panel{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:12px;padding:12px}
-.list{max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:8px}
-.item{padding:8px;border-radius:8px;background:rgba(255,255,255,0.01);display:flex;justify-content:space-between;align-items:center}
-.viewer{height:260px;background:#071018;border-radius:10px;padding:12px;overflow:auto;font-family:ui-monospace,monospace}
-.map{height:320px;background:linear-gradient(180deg,#041018,#06121b);border-radius:10px;padding:10px;overflow:auto;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start}
-.node{width:92px;height:92px;border-radius:10px;background:rgba(255,255,255,0.02);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px}
-.hud{position:fixed;right:20px;bottom:20px;background:rgba(0,0,0,0.3);padding:10px;border-radius:10px;display:flex;gap:8px;align-items:center}
+.prompt-row{display:flex;gap:10px;align-items:center;margin-top:10px}
+.input{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
+.quick-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.quick-grid button{padding:8px 10px;border-radius:8px;border:0;background:rgba(255,255,255,0.02);color:var(--muted);cursor:pointer}
+.card{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:12px;border-radius:10px}
+.map{height:340px;border-radius:10px;padding:12px;background:linear-gradient(180deg,#041018,#071225);display:flex;flex-wrap:wrap;gap:12px;align-content:flex-start;overflow:auto}
+.node{width:96px;height:96px;border-radius:10px;background:rgba(255,255,255,0.02);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;cursor:pointer}
+.node .n{font-weight:800}
+.node .s{font-size:12px;color:var(--muted)}
+.list{max-height:240px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;background:rgba(255,255,255,0.01)}
+.viewer{height:220px;background:#071018;border-radius:10px;padding:10px;overflow:auto;font-family:var(--mono)}
+.tabs{display:flex;gap:8px}
+.tab{padding:8px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);cursor:pointer}
+.tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#041018}
+.footer{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;margin-top:12px}
+.hud{position:fixed;right:20px;bottom:20px;background:linear-gradient(180deg,#021017,#021017);padding:10px;border-radius:12px;display:flex;gap:8px;align-items:center}
+.search{display:flex;gap:8px;align-items:center}
 @media(max-width:1200px){
-  .app{grid-template-columns:1fr;align-items:stretch;padding:10px}
-  .terminal-panel{height:520px}
-  .viewer{height:200px}
+  .app{grid-template-columns:1fr;padding:12px}
+  .header-bar{grid-column:1/2}
+  .console{height:420px}
+  .map{height:260px}
+  .viewer{height:180px}
 }
 </style>
 </head>
 <body>
-<div id="login" style="display:flex">
-  <div class="card login-card">
-    <h2>Blackbox Access</h2>
-    <input id="user" class="input" placeholder="username" />
-    <input id="pass" class="input" type="password" placeholder="password" />
-    <button id="enter" class="button primary">Enter Console</button>
-    <div id="loginErr" style="color:var(--danger);text-align:center;font-size:13px"></div>
-  </div>
-</div>
-<div id="app" style="display:none">
-  <div class="sidebar card">
-    <div class="brand"><div class="logo">BB</div><div><div class="title">Blackbox</div><div class="sub">Operator Console</div></div></div>
-    <div class="nav">
-      <button class="active" data-view="console">Console</button>
-      <button data-view="network">Network</button>
-      <button data-view="files">Files</button>
-      <button data-view="forensics">Forensics</button>
-      <button data-view="automation">Automation</button>
-      <button data-view="settings">Settings</button>
-    </div>
-    <div class="stat"><div class="kv"><div class="label">SESSION</div><div class="value" id="sessionLabel">guest@blackbox</div></div></div>
-    <div class="stat"><div class="kv"><div class="label">STATUS</div><div class="value" id="statusLabel">Idle</div></div></div>
-  </div>
-  <div>
-    <div class="header card">
-      <div><h1>Operator Console</h1><div style="font-size:12px;color:var(--muted)">simulation only</div></div>
-      <div class="controls"><button id="launchBtn" class="button primary">LAUNCH</button><button id="resetBtn" class="button ghost">RESET</button></div>
-    </div>
-    <div class="terminal-panel card" id="terminalPanel">
-      <div id="lines" class="terminal-lines"></div>
-      <div class="prompt-row">
-        <div id="prompt" style="align-self:center;font-family:ui-monospace,monospace;color:var(--muted)">admin@blackbox&gt;</div>
-        <input id="cmd" class="input-line" placeholder="commands: help, scan, connect, exploit, breach, netmap, brute, brute-stop, upload, download, open, view, kill, whoami, clear, time, status, macro --run=name" />
-        <button id="run" class="button primary">RUN</button>
-      </div>
-      <div class="quick-grid">
-        <button data-cmd="scan">scan</button>
-        <button data-cmd="listfiles">listfiles</button>
-        <button data-cmd="exploit --target=alpha --payload=shadow">exploit alpha</button>
-        <button data-cmd="breach --vault">breach vault</button>
-        <button data-cmd="netmap">netmap</button>
-        <button data-cmd="brute --target=alpha --mode=pass">brute force</button>
-        <button data-cmd="macro --run=recon">macro recon</button>
-        <button data-cmd="status">status</button>
+<div class="app">
+  <div class="header-bar">
+    <div class="brand">
+      <div class="logo">BB</div>
+      <div>
+        <div class="title">Blackbox Operator Suite</div>
+        <div style="font-size:12px;color:var(--muted)">Simulation • Interactive</div>
       </div>
     </div>
-  </div>
-  <div class="side-right">
-    <div class="panel card">
-      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:800">Network</div><div id="netCount" class="small" style="color:var(--muted)">0 nodes</div></div>
-      <div id="netMap" class="map"></div>
-    </div>
-    <div class="panel card">
-      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:800">File Vault</div><div id="vaultCount" class="small" style="color:var(--muted)">0 files</div></div>
-      <div id="vault" class="list"></div>
-      <div style="display:flex;gap:8px;margin-top:8px"><button id="exportBtn" class="button primary">Export</button><button id="wipeBtn" class="button ghost">Wipe</button></div>
-    </div>
-    <div class="panel card">
-      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:800">Processes</div><div id="procCount" class="small" style="color:var(--muted)">0</div></div>
-      <div id="procList" class="list"></div>
+    <div class="controls">
+      <div class="search">
+        <input id="globalSearch" placeholder="search nodes/files..." class="input" style="width:360px"/>
+      </div>
+      <button id="themeBtn" class="btn ghost">Theme</button>
+      <button id="logout" class="btn ghost">Logout</button>
     </div>
   </div>
-  <div class="hud card" id="hud" style="display:flex">
-    <div style="width:10px;height:10px;border-radius:50%;background:var(--accent)"></div>
-    <div style="font-size:13px;color:var(--muted)">simulation active</div>
+  <div class="left-nav card">
+    <div style="display:flex;gap:12px;align-items:center">
+      <div style="font-weight:700">Operator</div>
+      <div style="color:var(--muted);font-size:13px" id="sessionLabel">guest@blackbox</div>
+    </div>
+    <div class="nav-section" id="nav">
+      <button data-page="console" class="active">Console</button>
+      <button data-page="network">Network</button>
+      <button data-page="files">Files</button>
+      <button data-page="forensics">Forensics</button>
+      <button data-page="automation">Automation</button>
+      <button data-page="settings">Settings</button>
+    </div>
+    <div class="side-stats">
+      <div class="stat"><div class="kv"><div class="label">STATUS</div><div class="value" id="statusLabel">Idle</div></div></div>
+      <div class="stat"><div class="kv"><div class="label">VERSION</div><div class="value">Blackbox v1.0-sim</div></div></div>
+    </div>
   </div>
-</div>
-<div id="overlay" class="card" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:24px;z-index:40">
-  <div style="width:100%;max-width:1000px;background:linear-gradient(180deg,#071018,#041018);border-radius:12px;padding:16px">
+  <div class="center-panel" id="center">
+    <div id="page-console" class="page">
+      <div class="card console">
+        <div class="lines" id="lines"></div>
+        <div class="prompt-row">
+          <div id="prompt" style="color:var(--muted);font-family:var(--mono)">admin@blackbox&gt;</div>
+          <input id="cmd" class="input" placeholder="help, scan, connect <node>, exploit --target=... --payload=..., breach, netmap, brute --target=..., brute-stop, upload <file>, download <file>, open <id>, view --log=<id>, kill <proc>, whoami, clear, time, status, macro --run=name" />
+          <button id="runBtn" class="btn primary">RUN</button>
+        </div>
+        <div class="quick-grid">
+          <button data-cmd="help" class="quick">help</button>
+          <button data-cmd="scan" class="quick">scan</button>
+          <button data-cmd="listfiles" class="quick">listfiles</button>
+          <button data-cmd="exploit --target=alpha --payload=shadow" class="quick">exploit</button>
+          <button data-cmd="breach --vault" class="quick">breach</button>
+          <button data-cmd="netmap" class="quick">netmap</button>
+          <button data-cmd="brute --target=alpha --mode=pass" class="quick">brute force</button>
+          <button data-cmd="macro --run=recon" class="quick">macro recon</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:12px">
+        <div class="card" style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:800">Recent Activity</div>
+            <div style="font-size:12px;color:var(--muted)" id="actCount">0</div>
+          </div>
+          <div id="activity" class="list" style="margin-top:8px"></div>
+        </div>
+        <div class="card" style="width:320px">
+          <div style="font-weight:800">Session</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <div style="flex:1">
+              <div class="kv"><div class="label">User</div><div class="value" id="userLabel">guest</div></div>
+            </div>
+            <div style="flex:1">
+              <div class="kv"><div class="label">Role</div><div class="value" id="roleLabel">operator</div></div>
+            </div>
+          </div>
+          <div style="margin-top:12px"><button id="startBtn" class="btn primary" style="width:100%">Start Session</button></div>
+        </div>
+      </div>
+    </div>
+    <div id="page-network" class="page" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:800">Network Map</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="font-size:13px;color:var(--muted)" id="nodesCount">0 nodes</div>
+            <button id="refreshNet" class="btn ghost">Refresh</button>
+            <button id="connectBtn" class="btn primary">Connect Selected</button>
+          </div>
+        </div>
+        <div class="map" id="netMap"></div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:12px">
+        <div class="card" style="flex:1">
+          <div style="font-weight:800">Node Inspector</div>
+          <div id="nodeInspector" style="margin-top:8px;color:var(--muted)">Select a node to inspect</div>
+        </div>
+        <div class="card" style="width:320px">
+          <div style="font-weight:800">Scanned Hosts</div>
+          <div id="scanList" class="list" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+    <div id="page-files" class="page" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:800">File Vault</div>
+          <div style="display:flex;gap:8px">
+            <div style="font-size:13px;color:var(--muted)" id="vaultCount">0 files</div>
+            <button id="exportBtn" class="btn primary">Export Bundle</button>
+            <button id="wipeBtn" class="btn ghost">Wipe Vault</button>
+          </div>
+        </div>
+        <div id="vaultList" class="list" style="margin-top:10px"></div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:12px">
+        <div class="card" style="flex:1">
+          <div style="font-weight:800">File Preview</div>
+          <div id="fileViewer" class="viewer" style="margin-top:8px">Select a file to preview</div>
+        </div>
+        <div class="card" style="width:320px">
+          <div style="font-weight:800">Transfer Queue</div>
+          <div id="transferQueue" class="list" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+    <div id="page-forensics" class="page" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:800">Forensics</div>
+          <div style="display:flex;gap:8px"><button id="genLog" class="btn ghost">Generate Log</button><button id="hexDump" class="btn ghost">Hex Dump</button></div>
+        </div>
+        <div id="forensicViewer" class="viewer" style="margin-top:10px">Logs and hex dumps appear here</div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:12px">
+        <div class="card" style="flex:1">
+          <div style="font-weight:800">Packet Trace Simulator</div>
+          <div id="trace" class="viewer" style="margin-top:8px">No trace loaded</div>
+        </div>
+        <div class="card" style="width:320px">
+          <div style="font-weight:800">Log Index</div>
+          <div id="logIndex" class="list" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+    <div id="page-automation" class="page" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:800">Automation</div>
+          <div style="display:flex;gap:8px"><button id="newMacro" class="btn primary">New Macro</button></div>
+        </div>
+        <div id="macroList" class="list" style="margin-top:10px"></div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:12px">
+        <div class="card" style="flex:1">
+          <div style="font-weight:800">Macro Editor</div>
+          <textarea id="macroEditor" style="width:100%;height:220px;padding:10px;border-radius:8px;background:transparent;color:inherit;border:1px solid rgba(255,255,255,0.03)"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px"><button id="saveMacro" class="btn primary">Save</button><button id="runMacroBtn" class="btn ghost">Run</button></div>
+        </div>
+        <div class="card" style="width:320px">
+          <div style="font-weight:800">Macro Output</div>
+          <div id="macroOutput" class="viewer" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+    <div id="page-settings" class="page" style="display:none">
+      <div class="card">
+        <div style="font-weight:800">Settings</div>
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+          <div style="flex:1"><label style="font-size:13px;color:var(--muted)">Theme</label><select id="theme" style="width:100%;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit"><option value="neon">Neon</option><option value="crt">CRT Green</option></select></div>
+          <div style="width:160px"><label style="font-size:13px;color:var(--muted)">Profile</label><select id="profile" style="width:100%;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit"><option value="default">Default</option><option value="corp">Corporate</option><option value="dark">Hostile</option></select></div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px"><button id="applySettings" class="btn primary">Apply</button><button id="resetAll" class="btn ghost">Reset</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="right-panel card">
     <div style="display:flex;justify-content:space-between;align-items:center">
-      <div style="font-weight:800">Viewer</div>
-      <div><button id="closeOverlay" class="button ghost">CLOSE</button></div>
+      <div style="font-weight:800">Overview</div>
+      <div style="font-size:13px;color:var(--muted)" id="clock">--</div>
     </div>
-    <div style="height:12px"></div>
-    <div style="display:flex;gap:8px;margin-bottom:8px">
-      <button class="tab button ghost active" data-tab="code">Code</button>
-      <button class="tab button ghost" data-tab="hex">Hex</button>
-      <button class="tab button ghost" data-tab="raw">Raw</button>
-      <button class="tab button ghost" data-tab="log">Log</button>
+    <div style="margin-top:12px">
+      <div style="display:flex;gap:8px">
+        <div style="flex:1" class="card">
+          <div style="font-weight:700">Stats</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <div style="flex:1"><div class="kv"><div class="label small">Nodes</div><div class="value" id="statNodes">0</div></div></div>
+            <div style="flex:1"><div class="kv"><div class="label small">Files</div><div class="value" id="statFiles">0</div></div></div>
+          </div>
+        </div>
+        <div style="width:160px" class="card">
+          <div style="font-weight:700">Session</div>
+          <div style="margin-top:8px"><div class="kv"><div class="label small">User</div><div class="value" id="statUser">guest</div></div></div>
+        </div>
+      </div>
     </div>
-    <div id="viewer" class="viewer"></div>
+    <div style="margin-top:12px" class="card">
+      <div style="font-weight:800">Quick Logs</div>
+      <div id="quickLogs" class="list" style="margin-top:8px"></div>
+    </div>
+    <div style="margin-top:12px" class="card">
+      <div style="font-weight:800">Shortcuts</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+        <button data-cmd="scan" class="btn ghost">Scan</button>
+        <button data-cmd="netmap" class="btn ghost">Netmap</button>
+        <button data-cmd="listfiles" class="btn ghost">Files</button>
+        <button data-cmd="breach --vault" class="btn ghost">Breach</button>
+      </div>
+    </div>
   </div>
+</div>
+<div class="hud" style="display:none" id="hud">
+  <div style="width:10px;height:10px;border-radius:50%;background:var(--accent)"></div>
+  <div style="font-size:13px;color:var(--muted)">simulation active</div>
 </div>
 <script>
-const login=document.getElementById('login')
-const app=document.getElementById('app')
-const enter=document.getElementById('enter')
-const user=document.getElementById('user')
-const pass=document.getElementById('pass')
-const loginErr=document.getElementById('loginErr')
-const sessionLabel=document.getElementById('sessionLabel')
-const statusLabel=document.getElementById('statusLabel')
-const lines=document.getElementById('lines')
-const promptEl=document.getElementById('prompt')
+let nodes=[],files=[],procs=[],macros=[]
+let connected=null
+const linesEl=document.getElementById('lines')
 const cmdInput=document.getElementById('cmd')
-const runBtn=document.getElementById('run')
+const runBtn=document.getElementById('runBtn')
+const promptEl=document.getElementById('prompt')
+const navBtns=document.querySelectorAll('#nav button')
+const pages=document.querySelectorAll('.page')
+const activityEl=document.getElementById('activity')
+const actCount=document.getElementById('actCount')
 const netMap=document.getElementById('netMap')
-const netCount=document.getElementById('netCount')
-const vault=document.getElementById('vault')
+const nodesCount=document.getElementById('nodesCount')
+const scanList=document.getElementById('scanList')
+const nodeInspector=document.getElementById('nodeInspector')
+const vaultList=document.getElementById('vaultList')
 const vaultCount=document.getElementById('vaultCount')
+const fileViewer=document.getElementById('fileViewer')
 const procList=document.getElementById('procList')
 const procCount=document.getElementById('procCount')
-const overlay=document.getElementById('overlay')
-const viewer=document.getElementById('viewer')
-const closeOverlay=document.getElementById('closeOverlay')
-const tabButtons=document.querySelectorAll('.tab')
-const quickButtons=document.querySelectorAll('.quick-grid button')
-const navButtons=document.querySelectorAll('.nav button')
-const launchBtn=document.getElementById('launchBtn')
-const resetBtn=document.getElementById('resetBtn')
+const forensicViewer=document.getElementById('forensicViewer')
+const traceEl=document.getElementById('trace')
+const logIndex=document.getElementById('logIndex')
+const macroList=document.getElementById('macroList')
+const macroEditor=document.getElementById('macroEditor')
+const macroOutput=document.getElementById('macroOutput')
+const quickLogs=document.getElementById('quickLogs')
+const clockEl=document.getElementById('clock')
+const sessionLabel=document.getElementById('sessionLabel')
+const statusLabel=document.getElementById('statusLabel')
+const startBtn=document.getElementById('startBtn')
+const hudEl=document.getElementById('hud')
+const globalSearch=document.getElementById('globalSearch')
+const themeSelect=document.getElementById('theme')
+const profileSelect=document.getElementById('profile')
+const applySettings=document.getElementById('applySettings')
+const resetAll=document.getElementById('resetAll')
 const exportBtn=document.getElementById('exportBtn')
 const wipeBtn=document.getElementById('wipeBtn')
-const hud=document.getElementById('hud')
-const vaultCountEl=document.getElementById('vaultCount')
-let nodes=[]
-let files=[]
-let procs=[]
-let history=[]
-let histIndex=-1
-let connected=null
-let bruteInterval=null
+const genLog=document.getElementById('genLog')
+const hexDump=document.getElementById('hexDump')
+const runMacroBtn=document.getElementById('runMacroBtn')
+const newMacro=document.getElementById('newMacro')
+const saveMacro=document.getElementById('saveMacro')
+const runBtnRight=document.querySelectorAll('[data-cmd]')
+const shortCuts=document.querySelectorAll('[data-cmd]')
+const quickGridButtons=document.querySelectorAll('.quick-grid button')
+const headerNav=document.getElementById('nav')
+const launchBtn=document.getElementById('launchBtn')
+const resetBtn=document.getElementById('resetBtn')
+const logoutBtn=document.getElementById('logout')
+const startSessionBtn=document.getElementById('startBtn')
+const profileUser=document.getElementById('userLabel')
+const profileRole=document.getElementById('roleLabel')
+const statNodes=document.getElementById('statNodes')
+const statFiles=document.getElementById('statFiles')
+const statUser=document.getElementById('statUser')
+const quickButtons=document.querySelectorAll('.quick-grid button')
+const tabButtons=document.querySelectorAll('.tab')
+const overlay=document.getElementById('overlay')
+const viewer=document.getElementById('viewer')
+let history=[],histIndex=-1,bruteInterval=null
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min}
-function genIp(){return `${rnd(10,223)}.${rnd(0,255)}.${rnd(0,255)}.${rnd(1,254)}`}
 function uid(len){let s='';const chars='abcdefghijklmnopqrstuvwxyz0123456789';for(let i=0;i<len;i++)s+=chars.charAt(Math.floor(Math.random()*chars.length));return s}
-function writeLine(t,slow){
-  if(!slow){
+function genIp(){return `${rnd(10,223)}.${rnd(0,255)}.${rnd(0,255)}.${rnd(1,254)}`}
+function write(t,typed=false){
+  if(!typed){
     const el=document.createElement('div')
     el.className='line'
     el.textContent=t
-    lines.appendChild(el)
-    lines.scrollTop=lines.scrollHeight
+    linesEl.appendChild(el)
+    linesEl.scrollTop=linesEl.scrollHeight
+    addActivity(t)
     return
   }
-  let i=0
   const el=document.createElement('div')
   el.className='line'
-  lines.appendChild(el)
-  const id=setInterval(()=>{
-    el.textContent+=t.charAt(i) || ''
-    lines.scrollTop=lines.scrollHeight
-    i++
-    if(i>t.length){clearInterval(id)}
-  },15)
+  linesEl.appendChild(el)
+  let i=0
+  const id=setInterval(()=>{el.textContent+=t.charAt(i)||'';linesEl.scrollTop=linesEl.scrollHeight;i++;if(i>t.length)clearInterval(id)},12)
+  addActivity(t.slice(0,60)+'...')
 }
-function setPrompt(){
-  promptEl.textContent=connected?`admin@${connected}>`:'admin@blackbox>'
+function addActivity(t){
+  const el=document.createElement('div')
+  el.className='item'
+  el.textContent=(new Date()).toLocaleTimeString()+' • '+t
+  activityEl.prepend(el)
+  actCount.textContent=activityEl.children.length
+  if(activityEl.children.length>200)activityEl.removeChild(activityEl.lastChild)
+  const q=document.createElement('div')
+  q.className='item'
+  q.textContent=(new Date()).toLocaleTimeString()+' • '+t
+  quickLogs.prepend(q)
+  if(quickLogs.children.length>50)quickLogs.removeChild(quickLogs.lastChild)
 }
-function seedNodes(){
+function seedNodes(profile){
   nodes=[]
   netMap.innerHTML=''
+  scanList.innerHTML=''
   const pool=['alpha','beta','gamma','delta','epsilon','omega','nova','zephyr','lynx','apollo','orion','viper','atlas','sierra','tango','ursa']
-  const zones=['dmz','internal','cloud','iot','edge','vpn']
-  const osList=['linux','windows','freebsd','embedded','android','ios','router-os']
-  const c=rnd(8,20)
-  for(let i=0;i<c;i++){
-    const name=pool[Math.floor(Math.random()*pool.length)] + (Math.random()<0.3?'-'+uid(2):'')
-    const node={id:i+1,name,ip:genIp(),os:osList[rnd(0,osList.length-1)],ports:rnd(1,80),risk:rnd(1,100),zone:zones[rnd(0,zones.length-1)],desc:`Simulated host ${name}`}
+  const os=['linux','windows','freebsd','embedded','android','ios','router-os']
+  const zones=['dmz','internal','cloud','iot','edge']
+  const count=rnd(8,18)
+  for(let i=0;i<count;i++){
+    const name=pool[Math.floor(Math.random()*pool.length)]+(Math.random()<0.3?'-'+uid(2):'')
+    const node={id:i+1,name,ip:genIp(),os:os[rnd(0,os.length-1)],ports:rnd(1,128),risk:rnd(1,100),zone:zones[rnd(0,zones.length-1)],desc:`Simulated host ${name}`}
     nodes.push(node)
-    const el=document.createElement('div')
-    el.className='node'
-    el.innerHTML=`<div style="font-weight:800">${node.name}</div><div style="font-size:12px;color:var(--muted)">${node.os}</div><div style="font-size:11px;color:var(--muted)">${node.ip}</div>`
-    el.dataset.name=node.name
-    netMap.appendChild(el)
+    const n=document.createElement('div')
+    n.className='node'
+    n.dataset.name=node.name
+    n.innerHTML=`<div class="n">${node.name}</div><div class="s">${node.os}</div><div class="s" style="font-size:11px;color:var(--muted)">${node.ip}</div>`
+    netMap.appendChild(n)
+    const li=document.createElement('div')
+    li.className='item'
+    li.innerHTML=`<div style="font-weight:700">${node.name}</div><div style="color:var(--muted)">${node.ip}</div>`
+    scanList.appendChild(li)
   }
-  netCount.textContent=`${nodes.length} nodes`
+  nodesCount.textContent=`${nodes.length} nodes`
+  statNodes.textContent=nodes.length
+  addActivity('network seeded')
 }
-function seedFiles(){
+function seedFiles(profile){
   files=[]
-  vault.innerHTML=''
+  vaultList.innerHTML=''
   const names=['credentials.txt','vault.enc','server-config.yaml','session.log','backup.tar.gz','keyring.kdbx','report.pdf','photo_001.jpg','secrets.json','tokens.lst','db-backup.sql','deploy.sh','README.md','dump.hex','trace.pcap','licenses.txt','profile.png','env.prod','users.csv','analytics.db']
   for(let i=0;i<names.length;i++){
     const f={id:i+1,name:names[i],size:rnd(2,16384)}
     files.push(f)
     const el=document.createElement('div')
     el.className='item'
-    el.innerHTML=`<div style="font-weight:700">${f.name}</div><div style="display:flex;gap:8px"><div class="small" style="color:var(--muted)">${f.size} KB</div><button class="button ghost" data-open="${f.id}">OPEN</button></div>`
-    vault.appendChild(el)
+    el.innerHTML=`<div style="font-weight:700">${f.name}</div><div style="display:flex;gap:8px;align-items:center"><div style="color:var(--muted)">${f.size} KB</div><button class="btn ghost" data-open="${f.id}">open</button></div>`
+    vaultList.appendChild(el)
   }
   vaultCount.textContent=`${files.length} files`
+  statFiles.textContent=files.length
+  addActivity('vault seeded')
 }
 function seedProcs(){
   procs=[]
@@ -251,193 +425,210 @@ function seedProcs(){
     procs.push(p)
     const el=document.createElement('div')
     el.className='item'
-    el.innerHTML=`<div>${p.name}</div><div class="small" style="color:var(--muted)">${p.state} • ${p.pid}</div>`
+    el.innerHTML=`<div>${p.name}</div><div style="color:var(--muted)">${p.state} • ${p.pid}</div>`
     procList.appendChild(el)
   }
   procCount.textContent=`${procs.length}`
+  addActivity('processes initialized')
+}
+function setPrompt(){
+  promptEl.textContent=connected?`admin@${connected}>`:'admin@blackbox>'
 }
 function connectTo(name){
   const node=nodes.find(n=>n.name===name) || nodes.find(n=>n.name.toLowerCase().includes(name))
-  if(!node){writeLine('no such host');return}
-  writeLine(`initiating connection to ${node.name} ${node.ip}`)
+  if(!node){write('no such host');return}
+  write(`attempting connection to ${node.name} ${node.ip}`)
   statusLabel.textContent='Connecting'
-  setTimeout(()=>{connected=node.name;setPrompt();statusLabel.textContent='Connected';writeLine('connection established')},900)
+  setTimeout(()=>{connected=node.name;setPrompt();statusLabel.textContent='Connected';write(`connection established to ${node.name}`)},900)
 }
 function disconnect(){
-  if(!connected){writeLine('no active connection');return}
-  writeLine(`disconnecting ${connected}`)
+  if(!connected){write('no active connection');return}
+  write(`disconnecting ${connected}`)
   connected=null
   setPrompt()
   statusLabel.textContent='Idle'
-  writeLine('disconnected')
+  write('disconnected')
+}
+function showNodeDetails(name){
+  const node=nodes.find(n=>n.name===name)
+  if(!node){nodeInspector.textContent='no node selected';return}
+  nodeInspector.innerHTML=`<div style="font-weight:800">${node.name}</div><div style="color:var(--muted);margin-top:6px">ip: ${node.ip}</div><div style="color:var(--muted)">os: ${node.os}</div><div style="color:var(--muted)">ports: ${node.ports}</div><div style="color:var(--muted)">zone: ${node.zone}</div><div style="margin-top:8px"><button id="inspectConnect" class="btn primary">Connect</button></div>`
+  const btn=document.getElementById('inspectConnect')
+  btn.addEventListener('click',()=>connectTo(node.name))
 }
 function simulateExploit(target,payload){
-  writeLine(`preparing exploit ${payload} -> ${target}`)
+  write(`preparing exploit ${payload} -> ${target}`,true)
   statusLabel.textContent='Exploiting'
   let prog=0
-  const out=document.createElement('div')
-  out.className='line'
-  lines.appendChild(out)
-  const id=setInterval(()=>{
-    prog+=rnd(6,28)
-    out.textContent=`payload progress: ${Math.min(prog,100)}%`
-    lines.scrollTop=lines.scrollHeight
-    if(prog>100){
-      clearInterval(id)
-      statusLabel.textContent='Idle'
-      writeLine('exploit simulated success')
-      const leaks=rnd(1,5)
-      for(let i=0;i<leaks;i++) writeLine(`[${target}] leak: ${uid(12)}@example.com`)
-    }
-  },180)
+  const el=document.createElement('div')
+  el.className='line'
+  linesEl.appendChild(el)
+  const id=setInterval(()=>{prog+=rnd(6,28);el.textContent=`payload progress: ${Math.min(prog,100)}%`;linesEl.scrollTop=linesEl.scrollHeight;if(prog>100){clearInterval(id);statusLabel.textContent='Idle';write('exploit simulated success');const leaks=rnd(1,5);for(let i=0;i<leaks;i++)write(`[${target}] leak: ${uid(12)}@example.com`) }},160)
 }
 function breachVault(){
-  writeLine('attempting vault breach')
+  write('commencing vault breach',true)
   statusLabel.textContent='Breaching'
   let prog=0
-  const out=document.createElement('div')
-  out.className='line'
-  lines.appendChild(out)
-  const id=setInterval(()=>{
-    prog+=rnd(4,18)
-    out.textContent=`vault decrypt: ${Math.min(prog,100)}%`
-    lines.scrollTop=lines.scrollHeight
-    if(prog>100){
-      clearInterval(id)
-      statusLabel.textContent='Idle'
-      writeLine('vault opened')
-      const leaked=files.slice(0,rnd(1,5))
-      leaked.forEach(f=>writeLine(`exposed: ${f.name} • ${f.size}KB`))
-    }
-  },160)
+  const el=document.createElement('div')
+  el.className='line'
+  linesEl.appendChild(el)
+  const id=setInterval(()=>{prog+=rnd(4,18);el.textContent=`vault decrypt: ${Math.min(prog,100)}%`;linesEl.scrollTop=linesEl.scrollHeight;if(prog>100){clearInterval(id);statusLabel.textContent='Idle';write('vault opened');const leaked=files.slice(0,rnd(1,5));leaked.forEach(f=>write(`exposed: ${f.name} • ${f.size}KB`))}},160)
 }
 function exportBundle(){
-  let txt='BLACKBOX EXPORT\n\n'
+  let txt='BLACKBOX EXPORT BUNDLE\n\n'
   files.forEach(f=>txt+=`${f.name}: SIMULATED CONTENT\n`)
   const blob=new Blob([txt],{type:'text/plain'})
   const url=URL.createObjectURL(blob)
   const a=document.createElement('a')
-  a.href=url
-  a.download='blackbox_export.txt'
-  document.body.appendChild(a)
-  a.click()
-  a.remove()
-  URL.revokeObjectURL(url)
-  writeLine('export complete')
+  a.href=url;a.download='blackbox_bundle.txt';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)
+  write('export complete')
 }
 function openFile(id){
   const f=files.find(x=>x.id==id)
-  if(!f){writeLine('file not found');return}
+  if(!f){write('file not found');return}
+  fileViewer.textContent=''
   overlay.style.display='flex'
   viewer.textContent=''
-  if(f.name.match(/\\.txt$|\\.md$|\\.log$|\\.lst$/)){
-    let content=''
-    for(let i=0;i<80;i++) content+=`${i+1}: ${uid(18)}\\n`
-    viewer.textContent=`--- ${f.name} ---\\n` + content
-  } else if(f.name.match(/\\.sql$|\\.bin$|\\.enc$|\\.db$/)){
+  if(f.name.match(/\.txt$|\.md$|\.log$|\.lst$/)){
+    let content='';for(let i=0;i<80;i++)content+=`${i+1}: ${uid(18)}\n`;viewer.textContent=`--- ${f.name} ---\n`+content
+  } else if(f.name.match(/\.sql$|\.bin$|\.enc$|\.db$/)){
     viewer.textContent=Array.from({length:512}).map(()=>rnd(0,255).toString(16).padStart(2,'0')).join(' ')
-  } else if(f.name.match(/\\.js$|\\.sh$|\\.py$/)){
-    let code=''
-    for(let i=0;i<60;i++) code+=`var a${i}='${uid(12)}'\\n`
-    code+=`console.log('simulated payload')`
-    viewer.textContent=code
+  } else if(f.name.match(/\.js$|\.sh$|\.py$/)){
+    let code='';for(let i=0;i<60;i++)code+=`var a${i}='${uid(12)}'\n`;code+='console.log(\"simulated\")';viewer.textContent=code
   } else {
-    viewer.textContent=`preview not available\\nfile: ${f.name}\\nsize: ${f.size} KB`
+    viewer.textContent=`preview not available\nfile: ${f.name}\nsize: ${f.size} KB`
   }
+  addActivity('opened '+f.name)
 }
 function killProc(name){
-  const idx=procs.findIndex(p=>p.name===name || String(p.pid)===name)
-  if(idx<0){writeLine('process not found');return}
+  const idx=procs.findIndex(p=>p.name===name||String(p.pid)===name)
+  if(idx<0){write('process not found');return}
   const p=procs[idx]
   procs.splice(idx,1)
   seedProcs()
-  writeLine(`process ${p.name} (${p.pid}) terminated`)
+  write(`process ${p.name} (${p.pid}) terminated`)
 }
 function bruteForce(target,mode){
-  if(bruteInterval){writeLine('brute already running');return}
-  writeLine(`starting brute force against ${target} mode:${mode}`)
+  if(bruteInterval){write('brute already running');return}
+  write(`starting brute force against ${target} mode:${mode}`)
   statusLabel.textContent='Brute forcing'
   let attempts=0
-  bruteInterval=setInterval(()=>{
-    attempts++
-    const attemptStr=uid(8)
-    writeLine(`attempt ${attempts}: ${attemptStr}`)
-    if(attempts>rnd(15,50)){
-      clearInterval(bruteInterval)
-      bruteInterval=null
-      statusLabel.textContent='Idle'
-      writeLine('brute force finished: password found: '+uid(10))
-    }
-  },120)
+  bruteInterval=setInterval(()=>{attempts++;const attempt=uid(8);write(`attempt ${attempts}: ${attempt}`);if(attempts>rnd(15,50)){clearInterval(bruteInterval);bruteInterval=null;statusLabel.textContent='Idle';write('brute force finished: password found: '+uid(10))}},120)
 }
 function stopBrute(){
-  if(!bruteInterval){writeLine('no brute running');return}
-  clearInterval(bruteInterval)
-  bruteInterval=null
-  statusLabel.textContent='Idle'
-  writeLine('brute force stopped')
+  if(!bruteInterval){write('no brute running');return}
+  clearInterval(bruteInterval);bruteInterval=null;statusLabel.textContent='Idle';write('brute force stopped')
 }
-function runMacro(name){
-  writeLine(`running macro ${name}`)
-  if(name==='recon'){
-    parseCommand('scan')
-    setTimeout(()=>parseCommand('listfiles'),700)
-    setTimeout(()=>parseCommand('view --log=42'),1400)
-  } else if(name==='vault'){
-    parseCommand('breach --vault')
-    setTimeout(()=>parseCommand('listfiles'),900)
-    setTimeout(()=>parseCommand('open 1'),1600)
-  } else if(name==='harvest'){
-    parseCommand('scan')
-    setTimeout(()=>parseCommand('exploit --target=beta --payload=harvest'),900)
-    setTimeout(()=>parseCommand('exfil --target=staging.server'),2200)
+function genLogEntry(){
+  const id=rnd(1000,9999)
+  const el=document.createElement('div')
+  el.className='item'
+  el.textContent=`[${new Date().toISOString()}] log ${id} event ${uid(6)}`
+  logIndex.prepend(el)
+  if(logIndex.children.length>200)logIndex.removeChild(logIndex.lastChild)
+  addActivity('log generated '+id)
+}
+function hexDumpGen(){
+  let out='';for(let i=0;i<512;i++)out+=rnd(0,255).toString(16).padStart(2,'0')+' ';forensicViewer.textContent=out;addActivity('hex dump generated')
+}
+function runMacroFromEditor(){
+  const txt=macroEditor.value.trim()
+  if(!txt){macroOutput.textContent='no macro';return}
+  macroOutput.textContent=''
+  const lines=txt.split('\n').map(l=>l.trim()).filter(Boolean)
+  let i=0
+  const id=setInterval(()=>{if(i>=lines.length){clearInterval(id);macroOutput.textContent+=`\nmacro complete`;addActivity('macro run complete');return} const cmd=lines[i];macroOutput.textContent+=`> ${cmd}\n`;parseCommand(cmd);i++},400)
+}
+function saveMacroLocal(){
+  const body=macroEditor.value.trim()
+  if(!body)return
+  const name='macro_'+(macros.length+1)
+  macros.push({name,body})
+  renderMacroList()
+  addActivity('macro saved')
+}
+function renderMacroList(){
+  macroList.innerHTML=''
+  for(const m of macros){
+    const el=document.createElement('div')
+    el.className='item'
+    el.innerHTML=`<div style="font-weight:700">${m.name}</div><div style="display:flex;gap:8px"><button class="btn ghost" data-run="${m.name}">run</button><button class="btn ghost" data-load="${m.name}">load</button></div>`
+    macroList.appendChild(el)
   }
 }
+function runMacroByName(name){
+  const m=macros.find(x=>x.name===name)
+  if(!m){write('macro not found');return}
+  macroEditor.value=m.body
+  runMacroFromEditor()
+}
 function parseCommand(input){
-  if(!input) return
-  history.unshift(input)
-  histIndex=-1
-  writeLine((connected?`admin@${connected}> `:'admin@blackbox> ')+input)
-  const parts=input.split(' ')
-  const cmd=parts[0].toLowerCase()
-  if(cmd==='help'){writeLine('commands: help, scan, listfiles, open <id>, connect <host>, disconnect, exploit --target=X --payload=Y, breach --vault, netmap, brute --target=X, brute-stop, upload <name>, download <name>, kill <proc>, view --log=<id>, whoami, clear, time, status, macro --run=name');return}
-  if(cmd==='whoami'){writeLine('user: admin');return}
-  if(cmd==='clear'){lines.innerHTML='';return}
-  if(cmd==='time'){writeLine('system: '+new Date().toLocaleString());return}
-  if(cmd==='status'){writeLine(`session: ${sessionLabel.textContent} status: ${statusLabel.textContent} connected: ${connected||'none'}`);return}
-  if(cmd==='scan'){seedNodes();seedProcs();writeLine('scanning network...');setTimeout(()=>{seedNodes();seedProcs();seedFiles();seedNodes();writeLine('scan complete');seedNodes();},600);return}
-  if(cmd==='listfiles' || cmd==='files'){seedFiles();writeLine('vault listed');return}
-  if(cmd==='open'){const id=parts[1]||'';openFile(id);return}
-  if(cmd==='connect'){if(parts[1]) connectTo(parts[1]); else writeLine('usage: connect <host>');return}
+  if(!input)return
+  history.unshift(input);histIndex=-1
+  write((connected?`admin@${connected}> `:'admin@blackbox> ')+input)
+  const parts=input.split(' ');const cmd=parts[0].toLowerCase()
+  if(cmd==='help'){write('available: help, scan, listfiles, open <id>, connect <node>, disconnect, exploit --target=NAME --payload=NAME, breach --vault, netmap, brute --target=NAME --mode=..., brute-stop, upload <name>, download <name>, kill <proc>, view --log=<id>, whoami, clear, time, status, macro --run=name');return}
+  if(cmd==='whoami'){write('user: operator');return}
+  if(cmd==='clear'){linesEl.innerHTML='';return}
+  if(cmd==='time'){write('system: '+new Date().toLocaleString());return}
+  if(cmd==='status'){write(`session: ${sessionLabel.textContent} status: ${statusLabel.textContent} connected: ${connected||'none'}`);return}
+  if(cmd==='scan'){write('scanning...');seedNodes();seedProcs();seedFiles();return}
+  if(cmd==='listfiles'||cmd==='files'){seedFiles();write('vault listed');return}
+  if(cmd==='open'){const id=parts[1];openFile(id);return}
+  if(cmd==='connect'){if(parts[1])connectTo(parts[1]);else write('usage: connect <node>');return}
   if(cmd==='disconnect'){disconnect();return}
   if(cmd==='exploit'){const t=(parts.find(p=>p.startsWith('--target='))||'--target=alpha').split('=')[1];const payload=(parts.find(p=>p.startsWith('--payload='))||'--payload=zero').split('=')[1];simulateExploit(t,payload);return}
   if(cmd==='breach'){breachVault();return}
   if(cmd==='export'){exportBundle();return}
-  if(cmd==='kill'){const name=parts[1];if(name) killProc(name); else writeLine('usage: kill <process>');return}
+  if(cmd==='kill'){const name=parts[1];if(name)killProc(name);else write('usage: kill <process>');return}
   if(cmd==='brute'){const target=(parts.find(p=>p.startsWith('--target='))||'--target=alpha').split('=')[1];const mode=(parts.find(p=>p.startsWith('--mode='))||'--mode=pass').split('=')[1];bruteForce(target,mode);return}
   if(cmd==='brute-stop'){stopBrute();return}
-  if(cmd==='upload'){writeLine('uploading '+(parts[1]||'file')+' ... done');return}
-  if(cmd==='download'){writeLine('downloading '+(parts[1]||'file')+' ... saved');return}
-  if(cmd==='view'){const id=(parts.find(p=>p.startsWith('--log='))||'--log=1').split('=')[1];viewer.textContent='';let content='';for(let i=0;i<200;i++) content+=`[${new Date().toISOString()}] event ${i+1} ${uid(10)}\\n`;viewer.textContent=content;overlay.style.display='flex';return}
-  if(cmd==='netmap'){seedNodes();writeLine('rendering netmap');return}
-  if(cmd==='macro'){const name=(parts.find(p=>p.startsWith('--run='))||'--run=recon').split('=')[1];runMacro(name);return}
-  writeLine('unknown command: '+cmd)
+  if(cmd==='view'){const id=(parts.find(p=>p.startsWith('--log='))||'--log=1').split('=')[1];forensicViewer.textContent='';let out='';for(let i=0;i<200;i++)out+=`[${new Date().toISOString()}] event ${i+1} ${uid(8)}\n`;forensicViewer.textContent=out;addActivity('viewed log '+id);return}
+  if(cmd==='netmap'){seedNodes();write('netmap rendered');return}
+  if(cmd==='macro'){const name=(parts.find(p=>p.startsWith('--run='))||'--run=recon').split('=')[1];runMacroByName(name);return}
+  write('unknown command: '+cmd)
 }
+function write(t){const el=document.createElement('div');el.className='line';el.textContent=t;linesEl.appendChild(el);linesEl.scrollTop=linesEl.scrollHeight;addActivity(t)}
+document.addEventListener('click',e=>{
+  const nav=e.target.closest('#nav button')
+  if(nav){navBtns.forEach(b=>b.classList.remove('active'));nav.classList.add('active');const page=nav.dataset.page;pages.forEach(p=>p.style.display='none');document.getElementById('page-'+page).style.display='block';write('navigated to '+page);return}
+  const nodeEl=e.target.closest('.node')
+  if(nodeEl){const name=nodeEl.dataset.name;showNodeDetails(name);const nodesEls=document.querySelectorAll('.node');nodesEls.forEach(n=>n.style.boxShadow='none');nodeEl.style.boxShadow='0 6px 24px rgba(0,255,213,0.06)';return}
+  const openBtn=e.target.closest('[data-open]')
+  if(openBtn){openFile(openBtn.dataset.open);return}
+  const runBtn=e.target.closest('[data-run]')
+  if(runBtn){runMacroByName(runBtn.dataset.run);return}
+  const loadBtn=e.target.closest('[data-load]')
+  if(loadBtn){const m=macros.find(x=>x.name===loadBtn.dataset.load);if(m){macroEditor.value=m.body;addActivity('macro loaded')}} 
+  const qcmd=e.target.closest('[data-cmd]')
+  if(qcmd){parseCommand(qcmd.dataset.cmd);return}
+})
 runBtn.addEventListener('click',()=>{parseCommand(cmdInput.value);cmdInput.value=''})
 cmdInput.addEventListener('keydown',e=>{if(e.key==='Enter'){parseCommand(cmdInput.value);cmdInput.value=''}if(e.key==='ArrowUp'){if(history.length&&histIndex+1<history.length){histIndex++;cmdInput.value=history[histIndex]}}if(e.key==='ArrowDown'){if(histIndex>0){histIndex--;cmdInput.value=history[histIndex]}else{histIndex=-1;cmdInput.value=''}}})
-tabButtons.forEach(b=>b.addEventListener('click',()=>{tabButtons.forEach(x=>x.classList.remove('active'));b.classList.add('active');viewer.textContent='tab: '+b.dataset.tab}))
-document.addEventListener('click',e=>{const open=e.target.closest('[data-open]');if(open){openFile(open.dataset.open)}const q=e.target.closest('[data-cmd]');if(q){parseCommand(q.dataset.cmd)}const nav=e.target.closest('.nav button');if(nav){navButtons.forEach(n=>n.classList.remove('active'));nav.classList.add('active');writeLine('switched to '+nav.textContent)}})
-closeOverlay.addEventListener('click',()=>{overlay.style.display='none'})
-quickButtons.forEach(b=>b.addEventListener('click',()=>{parseCommand(b.dataset.cmd)}))
-launchBtn.addEventListener('click',()=>{writeLine('initializing blackbox...');sessionLabel.textContent='operator@blackbox';statusLabel.textContent='Active';seedNodes();seedFiles();seedProcs();writeLine('ready')})
-resetBtn.addEventListener('click',()=>{lines.innerHTML='';seedNodes();seedFiles();seedProcs();connected=null;setPrompt();statusLabel.textContent='Idle';writeLine('system reset')})
+quickButtons.forEach(b=>b.addEventListener('click',()=>parseCommand(b.dataset.cmd)))
+shortCuts.forEach(b=>b.addEventListener('click',()=>parseCommand(b.dataset.cmd)))
+launchBtn.addEventListener('click',()=>{write('initializing blackbox...');sessionLabel.textContent='operator@blackbox';statusLabel.textContent='Active';seedNodes();seedFiles();seedProcs();hudEl.style.display='flex';addActivity('session started')})
+resetBtn.addEventListener('click',()=>{linesEl.innerHTML='';seedNodes();seedFiles();seedProcs();connected=null;setPrompt();statusLabel.textContent='Idle';write('system reset')})
+startSessionBtn.addEventListener('click',()=>{sessionLabel.textContent='operator@blackbox';statusLabel.textContent='Active';write('session started');addActivity('session started')})
 exportBtn.addEventListener('click',exportBundle)
-wipeBtn.addEventListener('click',()=>{files=[];vault.innerHTML='';vaultCount.textContent='0 files';writeLine('vault wiped')})
-enter.addEventListener('click',()=>{if(user.value==='admin'&&pass.value==='1234'){login.style.display='none';app.style.display='grid';sessionLabel.textContent='admin@blackbox';statusLabel.textContent='Idle';writeLine('welcome admin');seedNodes();seedFiles();seedProcs();setPrompt()}else{loginErr.textContent='invalid credentials'}})
-document.getElementById('closeOverlay').addEventListener('click',()=>{overlay.style.display='none'})
-function setPrompt(){promptEl.textContent=connected?`admin@${connected}>`:'admin@blackbox>'}
-setInterval(()=>{document.getElementById('clock')?.remove()},10000)
-login.style.display='flex'
+wipeBtn.addEventListener('click',()=>{files=[];vaultList.innerHTML='';vaultCount.textContent='0 files';statFiles.textContent=0;write('vault wiped')})
+genLog.addEventListener('click',()=>{genLogEntry()})
+hexDump.addEventListener('click',()=>{hexDumpGen()})
+runMacroBtn.addEventListener('click',()=>runMacroFromEditor())
+newMacro.addEventListener('click',()=>{macroEditor.value='listfiles\nscan\nview --log=12';})
+saveMacro.addEventListener('click',saveMacroLocal)
+function renderMacroList(){macroList.innerHTML='';for(const m of macros){const el=document.createElement('div');el.className='item';el.innerHTML=`<div style="font-weight:700">${m.name}</div><div style="display:flex;gap:8px"><button class="btn ghost" data-run="${m.name}">run</button><button class="btn ghost" data-load="${m.name}">load</button></div>`;macroList.appendChild(el)}}
+document.addEventListener('click',e=>{const run=e.target.closest('[data-run]');if(run){runMacroByName(run.dataset.run)} const load=e.target.closest('[data-load]');if(load){const m=macros.find(x=>x.name===load.dataset.load);if(m)macroEditor.value=m.body}})
+startSessionBtn.addEventListener('click',()=>{sessionLabel.textContent='operator@blackbox';statusLabel.textContent='Active';write('console active')})
+logoutBtn.addEventListener('click',()=>{linesEl.innerHTML='';seedNodes();seedFiles();seedProcs();connected=null;setPrompt();statusLabel.textContent='Idle';sessionLabel.textContent='guest@blackbox';write('logged out')})
+document.getElementById('refreshNet').addEventListener('click',()=>{seedNodes();write('network refreshed')})
+document.getElementById('connectBtn').addEventListener('click',()=>{const sel=nodes[0];if(sel)connectTo(sel.name)})
+globalSearch.addEventListener('keydown',e=>{if(e.key==='Enter'){const q=globalSearch.value.toLowerCase();const foundNode=nodes.find(n=>n.name.toLowerCase().includes(q));if(foundNode){write('found node '+foundNode.name);showNodeDetails(foundNode.name)}const foundFile=files.find(f=>f.name.toLowerCase().includes(q));if(foundFile){write('found file '+foundFile.name);openFile(foundFile.id)}}})
+applySettings.addEventListener('click',()=>{const t=themeSelect.value;if(t==='crt'){document.documentElement.style.setProperty('--accent','#66ff66');document.documentElement.style.setProperty('--accent2','#2aff2a');document.body.style.background='linear-gradient(180deg,#001200 0%,#00180f 100%)';} else {document.documentElement.style.setProperty('--accent','#00ffd5');document.documentElement.style.setProperty('--accent2','#7b61ff');document.body.style.background='linear-gradient(180deg,#020417 0%,#061027 100%)'}seedNodes(profileSelect.value);seedFiles(profileSelect.value);write('settings applied')})
+resetAll.addEventListener('click',()=>{document.documentElement.style.setProperty('--accent','#00ffd5');document.documentElement.style.setProperty('--accent2','#7b61ff');document.body.style.background='linear-gradient(180deg,#020417 0%,#061027 100%)';seedNodes();seedFiles();seedProcs();write('settings reset')})
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');viewer.textContent='tab: '+t.dataset.tab}))
+setInterval(()=>{clockEl.textContent=new Date().toLocaleString()},1000)
+seedNodes();seedFiles();seedProcs();renderMacroList();setPrompt();hudEl.style.display='none'
 </script>
 </body>
 </html>
