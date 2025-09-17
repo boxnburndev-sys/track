@@ -2,46 +2,95 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>StreetSim Ultra — Synthetic Realistic Tracking</title>
+<title>StreetSim Ultra — Presets & Max Control (Synthetic)</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
 <style>
   html,body,#map{height:100%;margin:0;padding:0}
-  :root{--panel-bg:rgba(10,14,20,0.94);--accent:#38bdf8;--muted:#9fb6cf}
-  .ui{position:absolute;top:16px;left:16px;z-index:1200;width:360px;max-height:90%;overflow:auto;
-      background:var(--panel-bg);color:#eef;border-radius:12px;padding:14px;font-family:Inter,system-ui}
-  .ui h2{margin:0;font-size:16px}
-  .ui .muted{color:var(--muted);font-size:13px}
-  .btn{border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+  :root{
+    --panel-bg:rgba(6,12,22,0.95);
+    --accent:#38bdf8;
+    --muted:#9fb6cf;
+    --glass: rgba(255,255,255,0.03);
+  }
+  /* toggle button */
+  .toggle-panel{
+    position:absolute;top:14px;right:14px;z-index:1400;
+    background:var(--accent);color:#02121a;border:none;border-radius:50%;
+    width:46px;height:46px;font-size:20px;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.45)
+  }
+  /* control panel */
+  .panel{
+    position:absolute;left:14px;top:14px;z-index:1300;width:420px;max-height:90vh;overflow:auto;
+    background:var(--panel-bg);color:#eaf6ff;border-radius:12px;padding:12px;font-family:Inter,system-ui;
+    box-shadow:0 14px 40px rgba(0,0,0,0.6)
+  }
+  .panel.maximized{width:720px}
+  .panel h2{margin:0;font-size:18px}
+  .muted{color:var(--muted);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .small{font-size:13px;color:var(--muted)}
+  .btn{border:none;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:700}
   .btn.primary{background:var(--accent);color:#02121a}
-  .btn.ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.08)}
-  .row{display:flex;gap:6px;align-items:center;margin-top:6px}
-  .section{margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08)}
-  label{font-size:13px;color:var(--muted)}
-  select,input[type="range"],input[type="text"]{width:100%}
-  .tiny{font-size:12px;color:var(--muted)}
-  .toggle-panel{position:absolute;top:16px;right:16px;z-index:1300;background:var(--accent);
-    color:#02121a;border:none;border-radius:50%;width:46px;height:46px;font-size:22px;cursor:pointer}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.06)}
+  label{font-size:13px;color:var(--muted);display:block;margin-top:8px}
+  input[type="range"],select,input[type="text"],input[type="color"]{width:100%;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.04)}
+  .section{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.04)}
+  /* HUD */
+  .hud{position:absolute;right:14px;top:14px;z-index:1300;width:320px;max-height:90vh;overflow:auto;
+       background:rgba(2,6,23,0.82);color:#eaf6ff;border-radius:12px;padding:10px;font-family:Inter,system-ui}
+  .hud h3{margin:0 0 8px 0;font-size:16px}
+  .agent-row{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;background:var(--glass);margin-bottom:6px}
+  .agent-meta{font-size:12px;color:var(--muted)}
+  .kbd{background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;font-weight:700}
+  footer.small{font-size:12px;color:var(--muted);margin-top:8px}
 </style>
 </head>
 <body>
 <div id="map"></div>
-<button id="togglePanel" class="toggle-panel">⚙️</button>
-<div class="ui" id="controlPanel">
-  <h2>StreetSim Ultra Controls</h2>
-  <div class="muted">Synthetic street-following with lights, stops, zones, and names.</div>
+
+<button id="togglePanel" class="toggle-panel" title="Toggle panel">⚙️</button>
+
+<div class="panel" id="controlPanel" role="region" aria-label="StreetSim controls">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <h2>StreetSim Ultra — Presets & Controls</h2>
+    <div style="display:flex;gap:8px">
+      <button id="maximize" class="btn ghost" title="Maximize panel">⬜</button>
+      <button id="closePanel" class="btn ghost" title="Close panel">✕</button>
+    </div>
+  </div>
+  <div class="muted">Fully synthetic — uses OSRM for street-following geometry. Preset lights & signs, editable colors, automatic cycling. Use for UI/testing only.</div>
 
   <div class="section">
-    <label>Agent Name</label>
-    <input type="text" id="agentName" placeholder="e.g. Unit 42"/>
+    <label>Agent name</label>
+    <input id="agentName" type="text" placeholder="Type a name or leave blank"/>
     <label>Profile</label>
-    <select id="agentProfile">
-      <option value="walk">Walk</option>
-      <option value="bike">Bike</option>
-      <option value="drive" selected>Drive</option>
-    </select>
-    <div class="row"><button id="addAgent" class="btn primary">Add Agent</button>
-      <button id="removeAgent" class="btn ghost">Remove Last</button></div>
+    <select id="agentProfile"><option value="drive">Drive</option><option value="bike">Bike</option><option value="walk">Walk</option></select>
+
+    <label style="margin-top:8px">Agent marker color</label>
+    <input id="agentColor" type="color" value="#ff7f0e"/>
+
+    <div class="row" style="margin-top:8px">
+      <button id="addAgent" class="btn primary">Add Agent</button>
+      <button id="spawn5" class="btn ghost">Spawn 5</button>
+      <button id="removeAgent" class="btn ghost">Remove Last</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <label>Traffic light red color</label>
+    <input id="lightRed" type="color" value="#ff3b3b"/>
+    <label>Traffic light green color</label>
+    <input id="lightGreen" type="color" value="#7CFC00"/>
+    <label>Stop sign color</label>
+    <input id="stopColor" type="color" value="#ff8c00"/>
+    <div class="row">
+      <label>Auto-cycle lights</label>
+      <input id="autoCycle" type="checkbox" checked style="margin-left:auto"/>
+    </div>
+    <label>Light cycle duration (seconds)</label>
+    <input id="cycleDuration" type="range" min="4" max="30" step="1" value="10"/>
   </div>
 
   <div class="section">
@@ -49,179 +98,676 @@
     <input id="speedMult" type="range" min="0.25" max="3" step="0.25" value="1"/>
     <div class="row">
       <label>Realistic behavior</label>
-      <input type="checkbox" id="realistic" checked/>
+      <input id="realistic" type="checkbox" checked style="margin-left:auto"/>
+    </div>
+    <div class="row">
+      <button id="presetLights" class="btn ghost">Place Preset Lights</button>
+      <button id="presetStops" class="btn ghost">Place Preset Stops</button>
+      <button id="clearControls" class="btn ghost">Clear Lights/Stops</button>
     </div>
   </div>
 
   <div class="section">
-    <h3 style="font-size:14px;margin:0 0 6px 0">Traffic & Stops</h3>
-    <button id="addLight" class="btn ghost">Add Light</button>
-    <button id="addStop" class="btn ghost">Add Stop Sign</button>
-    <button id="toggleSel" class="btn ghost">Toggle Selected</button>
+    <label>Congestion: Draw zones</label>
+    <div class="row">
+      <button id="drawZone" class="btn ghost">Draw Zone</button>
+      <button id="clearZones" class="btn ghost">Clear Zones</button>
+    </div>
   </div>
 
   <div class="section">
-    <h3 style="font-size:14px;margin:0 0 6px 0">Zones</h3>
-    <button id="addZone" class="btn ghost">Draw Congestion Zone</button>
-    <button id="clearZones" class="btn ghost">Clear Zones</button>
+    <div class="row">
+      <button id="pauseAll" class="btn ghost">Pause/Resume</button>
+      <button id="toggleTrails" class="btn ghost">Toggle Trails</button>
+      <button id="exportCSV" class="btn ghost">Export CSV</button>
+      <button id="replayLast" class="btn ghost">Replay Last Trace</button>
+    </div>
   </div>
 
-  <div class="section row">
-    <button id="pauseAll" class="btn ghost">Pause</button>
-    <button id="toggleTrails" class="btn ghost">Trails</button>
-    <button id="export" class="btn ghost">Export CSV</button>
-  </div>
-
-  <div class="tiny" style="margin-top:8px">
-    Click map: reroute last agent<br>
-    Shift+Click: add light<br>
-    Shift+Alt+Click: add stop sign<br>
-    Drag when in “Draw Congestion Zone” mode
-  </div>
+  <footer class="small">Keyboard: A = add, P = pause, T = toggle trails. Click map to reroute the last agent.</footer>
 </div>
 
+<div class="hud" id="hud">
+  <h3>Agents Dashboard</h3>
+  <div id="agentList"></div>
+  <div style="margin-top:8px" class="small">Hover a row to focus agent. Use Focus / Remove buttons. Presets place lights near the center/grid intersections.</div>
+</div>
+
+<!-- libs -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
 
 <script>
-/* ==== CONFIG ==== */
-const OSRM = 'https://router.project-osrm.org';
-const SPEEDS = { walk:1.4, bike:5, drive:13 };
-const COLORS = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2'];
-function rand(a,b){return a+Math.random()*(b-a);}
+/* StreetSim Ultra — Presets & Max Control
+   - Single-file browser app (synthetic only)
+   - OSRM public router used for route geometry
+   - Preset lights/stop signs, color customization, full control panel
+*/
 
-/* ==== MAP ==== */
-const map=L.map('map').setView([40.73,-73.94],13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-  {attribution:'© OSM contributors'}).addTo(map);
+/* ======= Configuration ======= */
+const OSRM_BASE = 'https://router.project-osrm.org';
+const SPEEDS = { walk:1.4, bike:5.0, drive:13.0 };
+const DEFAULT_LIGHT_CYCLE = 10; // seconds
 
-/* ==== ENTITIES ==== */
-let agents=new Map(),nextId=1;
-let lights=new Map(),stops=new Map(),zones=[],selected=null;
-let running=true,mult=1;
+/* ======= Utilities ======= */
+function rand(a,b){ return a + Math.random()*(b-a); }
+function toRad(x){ return x * Math.PI / 180; }
+function haversine(a,b){
+  const R = 6371000;
+  const dLat = toRad(b.lat - a.lat), dLon = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat), lat2 = toRad(b.lat);
+  const sinDlat = Math.sin(dLat/2), sinDlon = Math.sin(dLon/2);
+  const aa = sinDlat*sinDlat + Math.cos(lat1)*Math.cos(lat2)*sinDlon*sinDlon;
+  const c = 2 * Math.atan2(Math.sqrt(aa), Math.sqrt(1-aa));
+  return R * c;
+}
+function lerp(a,b,t){ return { lat: a.lat + (b.lat - a.lat)*t, lng: a.lng + (b.lng - a.lng)*t }; }
+function escapeCSV(s){ if(s==null) return ''; return `"${String(s).replace(/"/g,'""')}"`; }
 
-/* ==== CLASSES ==== */
-class Agent{
-  constructor(id,name,coords,baseSpeed,color,profile){
-    this.id=id;this.name=name;this.profile=profile;
-    this.points=coords.map(c=>({lat:c[1],lng:c[0]}));
-    this.dist=[0];for(let i=1;i<this.points.length;i++)
-      this.dist[i]=this.dist[i-1]+distance(this.points[i-1],this.points[i]);
-    this.total=this.dist.at(-1);this.p=0;this.speed=0;
-    this.targetSpeed=baseSpeed;this.baseSpeed=baseSpeed;this.color=color;this.finished=false;
-    this.marker=L.circleMarker(this.points[0],{radius:7,color:'#000',fillColor:color,fillOpacity:1}).addTo(map)
-      .bindTooltip(`${name}`,{permanent:true,offset:[12,0]});
-    this.trail=L.polyline([], {color,weight:3,opacity:.8}).addTo(map);
-    this.trace=[];this.state="moving";
+/* ======= Map setup (satellite) ======= */
+const map = L.map('map', {preferCanvas:true}).setView([40.730610, -73.935242], 14);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Esri World Imagery',
+  maxZoom: 20
+}).addTo(map);
+
+/* ======= Global state ======= */
+let agents = new Map();           // id -> Agent
+let lights = new Map();           // id -> TrafficLight
+let stops = new Map();            // id -> StopSign
+let zones = [];                   // polygon arrays of lat/lng
+let lastTraces = [];              // saved traces for replay/export
+let nextAgentId = 1;
+let running = true;
+let speedMultiplier = 1.0;
+let realistic = true;
+let trailsVisible = true;
+let autoCycle = true;
+let cycleDuration = DEFAULT_LIGHT_CYCLE; // seconds
+let selectedObject = null; // for manual toggle etc.
+
+/* ======= Draw control (for zones) ======= */
+const drawnItems = new L.FeatureGroup().addTo(map);
+let drawControl = new L.Control.Draw({
+  edit: { featureGroup: drawnItems, edit: false, remove: true },
+  draw: { polygon:false, circle:false, polyline:false, marker:false, rectangle:true }
+});
+
+/* ======= OSRM route helper ======= */
+async function fetchRouteGeojson(aLatLng, bLatLng) {
+  const coords = `${aLatLng.lng},${aLatLng.lat};${bLatLng.lng},${bLatLng.lat}`;
+  const url = `${OSRM_BASE}/route/v1/driving/${coords}?overview=full&geometries=geojson&steps=false`;
+  const r = await fetch(url);
+  if(!r.ok) throw new Error('Routing error ' + r.status);
+  const j = await r.json();
+  if(!j.routes || !j.routes.length) return null;
+  return j.routes[0].geometry.coordinates; // [ [lng,lat], ... ]
+}
+
+/* ======= Traffic control classes ======= */
+class TrafficLight {
+  constructor(latlng, redColor='#ff3b3b', greenColor='#7CFC00', cycleSecs=DEFAULT_LIGHT_CYCLE){
+    this.id = 'TL-' + (Math.random().toString(36).slice(2,8));
+    this.latlng = latlng;
+    this.redColor = redColor;
+    this.greenColor = greenColor;
+    this.state = Math.random() < 0.5 ? 'red' : 'green'; // initial
+    this.marker = L.circleMarker(latlng, { radius:9, fillColor: this.state==='red'?this.redColor:this.greenColor, color:'#111', fillOpacity:1 }).addTo(map);
+    this.marker.on('click', ()=> { selectedObject = this; highlightSelected(); });
+    this.cycleSecs = cycleSecs;
+    this._timer = null;
+    if(autoCycle) this.startAutoCycle();
   }
-  posAt(m){if(m<=0)return this.points[0];if(m>=this.total)return this.points.at(-1);
-    let i=this.dist.findIndex(x=>x>=m);if(i<1)i=1;
-    let t=(m-this.dist[i-1])/(this.dist[i]-this.dist[i-1]);return lerp(this.points[i-1],this.points[i],t);}
-  step(dt,mult,realistic){
-    if(this.finished)return;
-    let pos=this.posAt(this.p);let factor=mult;let sp=this.baseSpeed*factor;
-    let stopDist=Infinity;
-    // lights
-    for(const Lgt of lights.values()){
-      if(Lgt.state==='red'){let d=distance(pos,Lgt.latlng);if(d<15){sp=0;this.state="red light";}}
+  startAutoCycle(){
+    if(this._timer) clearInterval(this._timer);
+    this._timer = setInterval(()=> this.toggle(), this.cycleSecs * 1000);
+  }
+  stopAutoCycle(){ if(this._timer){ clearInterval(this._timer); this._timer = null; } }
+  setCycle(secs){ this.cycleSecs = secs; this.stopAutoCycle(); if(autoCycle) this.startAutoCycle(); }
+  toggle(){
+    this.state = (this.state === 'red') ? 'green' : 'red';
+    this.marker.setStyle({ fillColor: this.state === 'red' ? this.redColor : this.greenColor });
+  }
+  setColors(red, green){
+    this.redColor = red; this.greenColor = green;
+    this.marker.setStyle({ fillColor: this.state === 'red' ? this.redColor : this.greenColor });
+  }
+  remove(){ map.removeLayer(this.marker); lights.delete(this.id); }
+}
+
+class StopSign {
+  constructor(latlng, color='#ff8c00'){
+    this.id = 'SS-' + (Math.random().toString(36).slice(2,8));
+    this.latlng = latlng;
+    this.color = color;
+    this.marker = L.circleMarker(latlng, { radius:8, fillColor: this.color, color:'#111', fillOpacity:1 }).addTo(map);
+    this.marker.on('click', ()=> { selectedObject = this; highlightSelected(); });
+    // passed set to prevent repeated stops
+    this.passed = new Set();
+    stops.set(this.id, this);
+  }
+  setColor(c){
+    this.color = c;
+    this.marker.setStyle({ fillColor: c });
+  }
+  remove(){ map.removeLayer(this.marker); stops.delete(this.id); }
+}
+
+/* ======= Agent class ======= */
+class Agent {
+  constructor(name, profile, coordsLonLat, baseSpeed, color){
+    this.id = 'AG' + nextAgentId++;
+    this.name = name || this.id;
+    this.profile = profile || 'drive';
+    this.points = coordsLonLat.map(c => ({ lat: c[1], lng: c[0] }));
+    if (this.points.length < 2) this.points = [this.points[0], this.points[0]];
+    // cumulative distances
+    this.dist = [0];
+    for (let i=1;i<this.points.length;i++) this.dist[i] = this.dist[i-1] + haversine(this.points[i-1], this.points[i]);
+    this.total = this.dist[this.dist.length-1] || 0;
+    this.progress = 0;
+    this.baseSpeed = baseSpeed || SPEEDS.drive;
+    this.speed = 0;
+    this.targetSpeed = this.baseSpeed;
+    this.speedJitter = (this.profile === 'walk') ? 0.32 : (this.profile === 'bike' ? 0.18 : 0.10);
+    this.pauseUntil = 0;
+    this.state = 'moving';
+    this.color = color || COLORS[Math.floor(Math.random()*COLORS.length)];
+    // map layers
+    this.marker = L.circleMarker(this.points[0], { radius:8, fillColor: this.color, color:'#02121A', weight:1, fillOpacity:1 }).addTo(map);
+    this.marker.bindTooltip(this.name, { permanent:true, direction: 'right', offset: [10,0] });
+    this.trail = L.polyline([], { color: this.color, weight: 3, opacity: trailsVisible ? 0.9 : 0.0 }).addTo(map);
+    this.polyline = L.polyline(this.points, { color: this.color, opacity: 0.12 }).addTo(map);
+    this.trace = []; // store samples for export
+    this.lastSample = 0;
+  }
+  getPosAt(m){
+    if (this.total <= 0) return this.points[0];
+    if (m <= 0) return this.points[0];
+    if (m >= this.total) return this.points[this.points.length-1];
+    // binary search for segment
+    let lo = 0, hi = this.dist.length - 1;
+    while (lo < hi) {
+      const mid = Math.floor((lo + hi) / 2);
+      if (this.dist[mid] < m) lo = mid + 1; else hi = mid;
     }
-    // stops
-    for(const St of stops.values()){
-      let d=distance(pos,St.latlng);if(!St.passed.has(this.id)&&d<12){
-        sp=0;this.state="stop sign";setTimeout(()=>St.passed.add(this.id),3000);
+    const i = Math.max(1, lo);
+    const segStart = this.dist[i-1], segEnd = this.dist[i];
+    const t = (m - segStart) / (segEnd - segStart);
+    return lerp(this.points[i-1], this.points[i], t);
+  }
+  step(dt){
+    const now = performance.now();
+    if (this.progress >= this.total) { this.state = 'arrived'; this.speed = 0; return; }
+    if (this.pauseUntil > now) { this.state = 'paused'; this.sample(now); return; }
+
+    // desired speed with jitter
+    const jitter = 1 + (rand(-this.speedJitter, this.speedJitter));
+    let desired = this.baseSpeed * jitter * speedMultiplier;
+
+    // respond to lights: if red and close, stop and set state
+    const cur = this.getPosAt(this.progress);
+    for (const tl of lights.values()) {
+      const d = haversine(cur, { lat: tl.latlng.lat, lng: tl.latlng.lng });
+      if (d < 16 && tl.state === 'red' && this.progress < this.total - 2) {
+        desired = 0;
+        this.state = 'stopped at red';
       }
     }
-    // zones
-    for(const z of zones){if(pointInPoly(pos,z)){sp*=rand(0.4,0.6);this.state="congested";}}
-    // random pauses
-    if(realistic && Math.random()<0.0005){sp=0;this.state="random pause";setTimeout(()=>this.state="moving",rand(2000,5000));}
-    this.targetSpeed=sp;
-    // accelerate / decelerate
-    let accel=realistic?2:99;let diff=this.targetSpeed-this.speed;
-    this.speed+=Math.sign(diff)*Math.min(Math.abs(diff),accel*dt);
-    this.p+=this.speed*dt; if(this.p>=this.total){this.p=this.total;this.finished=true;this.state="arrived";}
-    const cur=this.posAt(this.p);this.marker.setLatLng(cur);
-    let arr=this.trail.getLatLngs();arr.push(cur);if(arr.length>200)arr.shift();this.trail.setLatLngs(arr);
-    this.trace.push({t:Date.now(),lat:cur.lat,lng:cur.lng,spd:this.speed,state:this.state});
+
+    // respond to stop signs: if close and not passed yet (per sign), pause ~3s
+    for (const st of stops.values()) {
+      const d = haversine(cur, { lat: st.latlng.lat, lng: st.latlng.lng });
+      if (d < 12 && !st.passed.has(this.id)) {
+        desired = 0;
+        st.passed.add(this.id);
+        this.pauseUntil = now + rand(1800, 3200);
+        this.state = 'stopped at sign';
+      }
+    }
+
+    // congestion zones (slow within zone)
+    let congested = false;
+    for (const poly of zones) {
+      if (pointInPolygon(cur, poly)) { desired *= rand(0.35, 0.6); congested = true; this.state = 'congested'; }
+    }
+    if (!congested && this.state === 'congested') this.state = 'moving';
+
+    // occasional random pause
+    if (realistic && Math.random() < 0.0006) { this.pauseUntil = now + rand(1000, 4500); this.state = 'random pause'; return; }
+
+    // smooth acceleration
+    const accel = realistic ? 2.6 : 999;
+    const diff = desired - this.speed;
+    this.speed += Math.sign(diff) * Math.min(Math.abs(diff), accel * dt);
+
+    // move
+    const travel = this.speed * dt;
+    this.progress += travel;
+    if (this.progress > this.total) { this.progress = this.total; this.state = 'arrived'; }
+
+    // update marker + trail
+    const pos = this.getPosAt(this.progress);
+    this.marker.setLatLng(pos);
+    const arr = this.trail.getLatLngs(); arr.push(pos); if (arr.length > 300) arr.shift(); this.trail.setLatLngs(arr);
+
+    // sample trace periodically
+    this.sample(now);
+  }
+  sample(now){
+    if (!this.lastSample || now - this.lastSample > 700 || this.progress >= this.total) {
+      this.lastSample = now;
+      const pos = this.getPosAt(this.progress);
+      this.trace.push({ t: new Date().toISOString(), lat: pos.lat, lng: pos.lng, speed: this.speed.toFixed(2), state: this.state });
+    }
+  }
+  remove(){
+    // save trace for replay
+    lastTraces.push({ id: this.id, name: this.name, profile: this.profile, trace: this.trace.slice() });
+    if (this.marker) map.removeLayer(this.marker);
+    if (this.trail) map.removeLayer(this.trail);
+    if (this.polyline) map.removeLayer(this.polyline);
   }
 }
-class TrafficLight{
-  constructor(latlng){this.id='L'+lights.size;this.latlng=latlng;this.state='red';
-    this.marker=L.circleMarker(latlng,{radius:8,color:'#fff',fillColor:'red',fillOpacity:.8}).addTo(map);
-    this.marker.on('click',()=>{selected=this;updateStyle(this);});}
-  toggle(){this.state=this.state==='red'?'green':'red';updateStyle(this);}
-}
-class StopSign{
-  constructor(latlng){this.id='S'+stops.size;this.latlng=latlng;this.passed=new Set();
-    this.marker=L.circleMarker(latlng,{radius:7,color:'#fff',fillColor:'orange',fillOpacity:.8}).addTo(map);
-    this.marker.on('click',()=>{selected=this;});}
-}
 
-/* ==== HELPERS ==== */
-function updateStyle(l){l.marker.setStyle({fillColor:l.state==='red'?'red':'lime',radius:selected===l?12:8});}
-function distance(a,b){const R=6371e3;const φ1=a.lat*Math.PI/180,φ2=b.lat*Math.PI/180;
- const dφ=(b.lat-a.lat)*Math.PI/180,dλ=(b.lng-a.lng)*Math.PI/180;
- const s=Math.sin(dφ/2)**2+Math.cos(φ1)*Math.cos(φ2)*Math.sin(dλ/2)**2;
- return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));}
-function lerp(a,b,t){return{lat:a.lat+(b.lat-a.lat)*t,lng:a.lng+(b.lng-a.lng)*t};}
-async function route(o,d){const url=`${OSRM}/route/v1/driving/${o.lng},${o.lat};${d.lng},${d.lat}?overview=full&geometries=geojson`;
- const r=await fetch(url);const j=await r.json();return j.routes[0].geometry.coordinates;}
-function randomPoint(b){return L.latLng(rand(b.getSouth(),b.getNorth()),rand(b.getWest(),b.getEast()));}
-function pointInPoly(p,poly){return L.polygon(poly).getBounds().contains(p);}
+/* ======= Helper functions ======= */
+function pointInPolygon(pt, poly){
+  // poly is array of {lat,lng}, ray-casting
+  let x = pt.lng, y = pt.lat, inside = false;
+  for (let i=0,j=poly.length-1; i<poly.length; j=i++){
+    const xi = poly[i].lng, yi = poly[i].lat;
+    const xj = poly[j].lng, yj = poly[j].lat;
+    const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-9) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+function downloadBlob(content, name, type='text/csv'){ const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; a.click(); URL.revokeObjectURL(url); }
 
-/* ==== CONTROLS ==== */
-const panel=document.getElementById('controlPanel'),toggle=document.getElementById('togglePanel');
-toggle.onclick=()=>{panel.style.display=panel.style.display==='none'?'block':'none';};
-document.getElementById('addAgent').onclick=async()=>{
-  const prof=document.getElementById('agentProfile').value;
-  const name=document.getElementById('agentName').value||"Agent "+nextId;
-  const b=map.getBounds(),o=randomPoint(b),d=randomPoint(b);const coords=await route(o,d);
-  const id='A'+nextId++,sp=SPEEDS[prof]||SPEEDS.drive;
-  agents.set(id,new Agent(id,name,coords,sp,COLORS[nextId%COLORS.length],prof));
+/* ======= UI bindings ======= */
+const panel = document.getElementById('controlPanel');
+const togglePanelBtn = document.getElementById('togglePanel');
+const maximizeBtn = document.getElementById('maximize');
+const closePanelBtn = document.getElementById('closePanel');
+const addAgentBtn = document.getElementById('addAgent');
+const spawn5Btn = document.getElementById('spawn5');
+const removeAgentBtn = document.getElementById('removeAgent');
+const agentNameInput = document.getElementById('agentName');
+const agentProfileSelect = document.getElementById('agentProfile');
+const agentColorInput = document.getElementById('agentColor');
+const lightRedInput = document.getElementById('lightRed');
+const lightGreenInput = document.getElementById('lightGreen');
+const stopColorInput = document.getElementById('stopColor');
+const autoCycleCheckbox = document.getElementById('autoCycle');
+const cycleDurationInput = document.getElementById('cycleDuration');
+const presetLightsBtn = document.getElementById('presetLights');
+const presetStopsBtn = document.getElementById('presetStops');
+const clearControlsBtn = document.getElementById('clearControls');
+const drawZoneBtn = document.getElementById('drawZone');
+const clearZonesBtn = document.getElementById('clearZones');
+const speedMultInput = document.getElementById('speedMult');
+const speedMultLabel = document.getElementById('speedMultLabel');
+const realisticCheckbox = document.getElementById('realistic');
+const pauseAllBtn = document.getElementById('pauseAll');
+const toggleTrailsBtn = document.getElementById('toggleTrails');
+const exportCSVBtn = document.getElementById('exportCSV');
+const replayLastBtn = document.getElementById('replayLast');
+const hudList = document.getElementById('agentList');
+
+/* toggle panel */
+togglePanelBtn.onclick = ()=> panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+closePanelBtn.onclick = ()=> panel.style.display = 'none';
+maximizeBtn.onclick = ()=> panel.classList.toggle('maximized');
+
+/* speed multiplier */
+speedMultInput.oninput = (e)=> { speedMultiplier = parseFloat(e.target.value); speedMultLabel.textContent = speedMultiplier.toFixed(2) + '×'; };
+
+/* realistic toggle */
+realisticCheckbox.onchange = ()=> realistic = realisticCheckbox.checked;
+
+/* add agent */
+addAgentBtn.onclick = async () => {
+  addAgentBtn.disabled = true;
+  try {
+    const name = agentNameInput.value.trim() || null;
+    const profile = agentProfileSelect.value;
+    const color = agentColorInput.value || COLORS[Math.floor(Math.random()*COLORS.length)];
+    const bounds = map.getBounds();
+    const origin = L.latLng(rand(bounds.getSouth(), bounds.getNorth()), rand(bounds.getWest(), bounds.getEast()));
+    const dest = L.latLng(rand(bounds.getSouth(), bounds.getNorth()), rand(bounds.getWest(), bounds.getEast()));
+    const coords = await fetchRouteGeojson(origin, dest);
+    if (!coords || coords.length < 2) { alert('Routing failed (try panning or try again)'); return; }
+    const agent = new Agent(name || ('Agent ' + nextAgentId), profile, coords, SPEEDS[profile], color);
+    agents.set(agent.id, agent);
+    renderHUD();
+  } catch (err) {
+    console.error(err); alert('Add agent error: ' + err.message);
+  } finally {
+    addAgentBtn.disabled = false;
+  }
 };
-document.getElementById('removeAgent').onclick=()=>{
-  const k=[...agents.keys()].pop();if(!k)return;agents.get(k).marker.remove();agents.get(k).trail.remove();agents.delete(k);
+
+/* spawn 5 quickly */
+spawn5Btn.onclick = async () => {
+  spawn5Btn.disabled = true;
+  for (let i=0;i<5;i++){
+    await new Promise(r => setTimeout(r, 200));
+    addAgentBtn.click();
+  }
+  spawn5Btn.disabled = false;
 };
-document.getElementById('pauseAll').onclick=()=>running=!running;
-document.getElementById('speedMult').oninput=e=>{mult=parseFloat(e.target.value);
-  document.getElementById('speedMultLabel').innerText=mult+'×';};
-document.getElementById('toggleTrails').onclick=()=>{agents.forEach(a=>a.trail.setStyle({opacity:a.trail.options.opacity?0:.8}));};
-document.getElementById('export').onclick=()=>{
-  let csv='id,name,profile,t,lat,lng,spd,state\n';
-  agents.forEach((a,id)=>{a.trace.forEach(r=>csv+=`${id},${a.name},${a.profile},${r.t},${r.lat},${r.lng},${r.spd},${r.state}\n`);});
-  download(csv,'synthetic.csv');
+
+/* remove last */
+removeAgentBtn.onclick = () => {
+  const keys = Array.from(agents.keys());
+  if (!keys.length) return;
+  const last = keys[keys.length-1];
+  const a = agents.get(last);
+  a.remove();
+  agents.delete(last);
+  renderHUD();
 };
-function download(content,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content]));a.download=name;a.click();}
-document.getElementById('addLight').onclick=()=>alert('Shift+Click map to place light');
-document.getElementById('addStop').onclick=()=>alert('Shift+Alt+Click map to place stop sign');
-document.getElementById('toggleSel').onclick=()=>{if(selected?.toggle)selected.toggle();};
-let drawControl=null;
-document.getElementById('addZone').onclick=()=>{
-  if(drawControl){map.removeControl(drawControl);}
-  drawControl=new L.Control.Draw({draw:{polygon:false,marker:false,circle:false,polyline:false,rectangle:true},edit:false});
+
+/* preset lights: grid around center */
+presetLightsBtn.onclick = () => {
+  const center = map.getCenter();
+  const step = 0.005; // small grid spacing (~500m)
+  const positions = [
+    [center.lat, center.lng],
+    [center.lat + step, center.lng + step],
+    [center.lat + step, center.lng - step],
+    [center.lat - step, center.lng + step],
+    [center.lat - step, center.lng - step]
+  ];
+  positions.forEach((p, idx) => {
+    const tl = new TrafficLight(L.latLng(p[0], p[1]), lightRedInput.value, lightGreenInput.value, parseInt(cycleDurationInput.value) || DEFAULT_LIGHT_CYCLE);
+    lights.set(tl.id, tl);
+  });
+};
+
+/* preset stops: small ring around center */
+presetStopsBtn.onclick = () => {
+  const center = map.getCenter();
+  const step = 0.004;
+  const positions = [
+    [center.lat + step, center.lng],
+    [center.lat - step, center.lng],
+    [center.lat, center.lng + step],
+    [center.lat, center.lng - step]
+  ];
+  positions.forEach(p => {
+    const s = new StopSign(L.latLng(p[0], p[1]), stopColorInput.value);
+    stops.set(s.id, s);
+  });
+};
+
+/* clear controls */
+clearControlsBtn.onclick = () => {
+  lights.forEach(l => l.remove()); lights.clear();
+  stops.forEach(s => s.remove()); stops.clear();
+  selectedObject = null;
+};
+
+/* draw zone */
+drawZoneBtn.onclick = () => {
   map.addControl(drawControl);
+  alert('Draw a rectangle on the map to place a congestion zone.');
 };
-document.getElementById('clearZones').onclick=()=>{zones=[];map.eachLayer(l=>{if(l instanceof L.Rectangle)map.removeLayer(l);});};
+map.on(L.Draw.Event.CREATED, function (e) {
+  const layer = e.layer;
+  if (layer instanceof L.Rectangle) {
+    drawnItems.addLayer(layer);
+    const latlngs = layer.getLatLngs()[0].map(ll => ({ lat: ll.lat, lng: ll.lng }));
+    zones.push(latlngs);
+  }
+  map.removeControl(drawControl);
+});
 
-/* ==== MAP INTERACTIONS ==== */
-map.on('click',async e=>{
-  if(e.originalEvent.shiftKey && e.originalEvent.altKey){
-    const S=new StopSign(e.latlng);stops.set(S.id,S);selected=S;
-  }else if(e.originalEvent.shiftKey){
-    const Lgt=new TrafficLight(e.latlng);lights.set(Lgt.id,Lgt);selected=Lgt;updateStyle(Lgt);
-  }else{
-    const k=[...agents.keys()].pop();if(!k)return;
-    const coords=await route(agents.get(k).marker.getLatLng(),e.latlng);
-    agents.set(k,new Agent(k,agents.get(k).name,coords,agents.get(k).baseSpeed,agents.get(k).color,agents.get(k).profile));
+/* clear zones */
+clearZonesBtn.onclick = () => {
+  zones = [];
+  drawnItems.clearLayers();
+};
+
+/* auto-cycle checkbox and cycle duration */
+autoCycleCheckbox.onchange = () => {
+  autoCycle = autoCycleCheckbox.checked;
+  lights.forEach(l => { if (autoCycle) l.startAutoCycle(); else l.stopAutoCycle(); });
+};
+cycleDurationInput.oninput = () => {
+  cycleDuration = parseInt(cycleDurationInput.value);
+  lights.forEach(l => l.setCycle(cycleDuration));
+};
+
+/* pause / resume all */
+pauseAllBtn.onclick = () => { running = !running; pauseAllBtn.textContent = running ? 'Pause/Resume' : 'Paused'; };
+
+/* toggle trails */
+toggleTrailsBtn.onclick = () => {
+  trailsVisible = !trailsVisible;
+  agents.forEach(a => { a.trail.setStyle({ opacity: trailsVisible ? 0.9 : 0.0 }); });
+};
+
+/* export CSV */
+exportCSVBtn.onclick = () => {
+  let csv = 'id,name,profile,timestamp,lat,lng,speed,state\n';
+  agents.forEach(a => {
+    a.trace.forEach(s => csv += `${escapeCSV(a.id)},${escapeCSV(a.name)},${a.profile},${s.t},${s.lat},${s.lng},${s.speed},${escapeCSV(s.state)}\n`);
+  });
+  lastTraces.forEach(rec => {
+    rec.trace.forEach(s => csv += `${escapeCSV(rec.id)},${escapeCSV(rec.name)},${escapeCSV(rec.profile)},${s.t},${s.lat},${s.lng},${s.speed},${escapeCSV(s.state)}\n`);
+  });
+  downloadBlob(csv, `streetsim_traces_${(new Date()).toISOString().replace(/[:.]/g,'-')}.csv`);
+};
+
+/* replay last */
+replayLastBtn.onclick = () => {
+  if (!lastTraces.length) { alert('No traces saved yet (remove or finish agents to save traces).'); return; }
+  const rec = lastTraces.pop();
+  replayTrace(rec);
+};
+
+/* click map: reroute last agent */
+map.on('click', async (e) => {
+  const keys = Array.from(agents.keys());
+  if (!keys.length) return;
+  const last = keys[keys.length - 1];
+  const agent = agents.get(last);
+  if (!agent) return;
+  // remove old visuals to avoid duplicates
+  if (agent.marker) map.removeLayer(agent.marker);
+  if (agent.trail) map.removeLayer(agent.trail);
+  if (agent.polyline) map.removeLayer(agent.polyline);
+
+  try {
+    const origin = agent.getPosAt(agent.progress); // current position
+    const coords = await fetchRouteGeojson(origin, e.latlng);
+    if (!coords || coords.length < 2) { alert('Routing failed'); return; }
+    // create new agent object but preserve id & name & color & baseSpeed & trace
+    const newAgent = new Agent(agent.name, agent.profile, coords, agent.baseSpeed, agent.color);
+    // preserve id and trace by manual replacement
+    newAgent.id = agent.id;
+    newAgent.trace = agent.trace.slice();
+    // remove old object and set the new one
+    agents.delete(last);
+    agents.set(newAgent.id, newAgent);
+    renderHUD();
+  } catch (err) {
+    console.error(err); alert('Routing error: ' + err.message);
   }
 });
-map.on(L.Draw.Event.CREATED,function(e){if(e.layerType==='rectangle'){zones.push(e.layer.getLatLngs()[0]);e.layer.addTo(map);}});
 
-/* ==== LOOP ==== */
-let last=performance.now();function loop(t){const dt=(t-last)/1000;last=t;
-  if(running)agents.forEach(a=>a.step(dt,mult,document.getElementById('realistic').checked));
-  requestAnimationFrame(loop);}requestAnimationFrame(loop);
+/* keyboard shortcuts */
+window.addEventListener('keydown', (e) => {
+  if (e.key.toLowerCase() === 'a') addAgentBtn.click();
+  if (e.key.toLowerCase() === 'p') pauseAllBtn.click();
+  if (e.key.toLowerCase() === 't') toggleTrailsBtn.click();
+});
+
+/* highlight selected control */
+function highlightSelected() {
+  // briefly outline the selected object's marker
+  map.eachLayer(l => {
+    if (l.setStyle) l.setStyle({ weight: 1 });
+  });
+  if (selectedObject && selectedObject.marker && selectedObject.marker.setStyle) {
+    selectedObject.marker.setStyle({ weight: 3 });
+  }
+}
+
+/* render HUD */
+function renderHUD(){
+  const container = document.getElementById('agentList');
+  container.innerHTML = '';
+  agents.forEach((a, id) => {
+    const div = document.createElement('div');
+    div.className = 'agent-row';
+    div.innerHTML = `<div>
+      <div style="font-weight:700">${a.name} <span style="color:${a.color};font-weight:700">(${a.profile})</span></div>
+      <div class="agent-meta">speed: ${(a.speed||0).toFixed(2)} m/s · state: ${a.state}</div>
+      <div class="agent-meta">progress: ${Math.round((a.progress / (a.total||1))*100)}% · ETA: ${etaText(a)}</div>
+    </div>`;
+    const buttons = document.createElement('div');
+    buttons.style.display = 'flex';
+    buttons.style.flexDirection = 'column';
+    buttons.style.gap = '6px';
+    const focus = document.createElement('button');
+    focus.className = 'btn ghost'; focus.textContent = 'Focus';
+    focus.onclick = () => { map.panTo(a.marker.getLatLng()); a.marker.openTooltip(); };
+    const rem = document.createElement('button');
+    rem.className = 'btn ghost'; rem.textContent = 'Remove';
+    rem.onclick = () => { a.remove(); agents.delete(id); renderHUD(); };
+    buttons.appendChild(focus); buttons.appendChild(rem);
+    div.appendChild(buttons);
+    div.onmouseenter = () => { map.panTo(a.marker.getLatLng()); };
+    container.appendChild(div);
+  });
+}
+
+/* ETA text */
+function etaText(agent){
+  if (agent.progress >= agent.total) return 'arrived';
+  const rem = Math.max(0, agent.total - agent.progress);
+  const sp = Math.max(0.01, agent.speed || agent.baseSpeed * 0.5);
+  const secs = Math.round(rem / sp);
+  if (secs > 3600) return `${Math.round(secs/3600)}h`;
+  return `${secs}s`;
+}
+
+/* replay trace simple visualizer */
+function replayTrace(rec){
+  if (!rec.trace || rec.trace.length < 2) { alert('Not enough points to replay'); return; }
+  const coords = rec.trace.map(p => [p.lat, p.lng]);
+  const poly = L.polyline(coords, { color:'#fff', weight:3, opacity:0.9 }).addTo(map);
+  const marker = L.circleMarker(coords[0], { radius:8, fillColor:'#fff', color:'#02121A', weight:1, fillOpacity:1 }).addTo(map);
+  map.fitBounds(poly.getBounds(), { maxZoom: 16, padding: [20,20] });
+  let idx = 0;
+  const iv = setInterval(()=> {
+    idx++;
+    if (idx >= coords.length) { clearInterval(iv); setTimeout(()=>{ map.removeLayer(poly); map.removeLayer(marker); }, 800); return; }
+    marker.setLatLng(coords[idx]);
+  }, 250);
+}
+
+/* ======= Main animation loop ======= */
+let lastTS = performance.now();
+function tick(now){
+  const dt = Math.min(0.5, (now - lastTS) / 1000);
+  lastTS = now;
+  if (running) {
+    agents.forEach(a => a.step(dt));
+  }
+  renderHUD();
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+/* ======= Auto-place some default lights & stops (preset mode) ======= */
+function placeAutoPresets(){
+  // take map center and make a little cross/grid of controls
+  const c = map.getCenter();
+  const s = 0.0035; // spacing
+  const pts = [
+    [c.lat, c.lng],
+    [c.lat + s, c.lng],
+    [c.lat - s, c.lng],
+    [c.lat, c.lng + s],
+    [c.lat, c.lng - s],
+    [c.lat + s, c.lng + s],
+    [c.lat - s, c.lng - s]
+  ];
+  pts.forEach((p,i) => {
+    const tl = new TrafficLight(L.latLng(p[0], p[1]), document.getElementById('lightRed').value, document.getElementById('lightGreen').value, parseInt(document.getElementById('cycleDuration').value) || DEFAULT_LIGHT_CYCLE);
+    lights.set(tl.id, tl);
+    if (i % 3 === 0) {
+      const sgn = new StopSign(L.latLng(p[0] + 0.001, p[1] + 0.001), document.getElementById('stopColor').value);
+      stops.set(sgn.id, sgn);
+    }
+  });
+}
+placeAutoPresets();
+
+/* ======= expose some helpers for color changes ======= */
+document.getElementById('lightRed').addEventListener('input', (e) => {
+  const red = e.target.value;
+  lights.forEach(l => { l.redColor = red; l.marker.setStyle({ fillColor: l.state === 'red' ? red : l.greenColor }); });
+});
+document.getElementById('lightGreen').addEventListener('input', (e) => {
+  const green = e.target.value;
+  lights.forEach(l => { l.greenColor = green; l.marker.setStyle({ fillColor: l.state === 'green' ? green : l.redColor }); });
+});
+document.getElementById('stopColor').addEventListener('input', (e) => {
+  const c = e.target.value;
+  stops.forEach(s => s.setColor(c));
+});
+document.getElementById('agentColor').addEventListener('input', (e) => {
+  // change color for newly created agents; optionally update selected agent
+});
+
+/* ======= fetchRoute wrapper used earlier ======= */
+async function fetchRouteGeojson(aLatLng, bLatLng) {
+  const coords = `${aLatLng.lng},${aLatLng.lat};${bLatLng.lng},${bLatLng.lat}`;
+  const url = `${OSRM_BASE}/route/v1/driving/${coords}?overview=full&geometries=geojson&steps=false`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('Routing error ' + r.status);
+  const j = await r.json();
+  if (!j.routes || !j.routes.length) return null;
+  return j.routes[0].geometry.coordinates;
+}
+
+/* ======= Initial demo agents (safe, small count) ======= */
+(async function init() {
+  // spawn one drive and one walk to show difference
+  for (let i=0;i<2;i++){
+    try {
+      const bounds = map.getBounds();
+      const origin = L.latLng(rand(bounds.getSouth(), bounds.getNorth()), rand(bounds.getWest(), bounds.getEast()));
+      const dest = L.latLng(rand(bounds.getSouth(), bounds.getNorth()), rand(bounds.getWest(), bounds.getEast()));
+      const coords = await fetchRouteGeojson(origin, dest);
+      if (!coords || coords.length < 2) continue;
+      const profile = i===0 ? 'drive' : 'walk';
+      const color = COLORS[i % COLORS.length];
+      const agent = new Agent(profile === 'drive' ? 'Car ' + (i+1) : 'Walker ' + (i+1), profile, coords, SPEEDS[profile], color);
+      agents.set(agent.id, agent);
+    } catch (err) { console.warn('init spawn fail', err); }
+  }
+})();
+
+/* ======= Utility: distance & point-in-poly used above (repeat for safety) ======= */
+function distance(a,b){ return haversine(a,b); }
+
+function pointInPolygon(pt, poly){
+  let x = pt.lng, y = pt.lat, inside = false;
+  for (let i=0,j=poly.length-1;i<poly.length;j=i++){
+    const xi = poly[i].lng, yi = poly[i].lat;
+    const xj = poly[j].lng, yj = poly[j].lat;
+    const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-9) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+/* ======= End of script ======= */
 </script>
 </body>
 </html>
