@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Simulated Tracker — Synthetic Data Only</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#60a5fa;
+      --muted:#94a3b8;
+      --success:#34d399;
+      --danger:#fb7185;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    body{margin:0;background:linear-gradient(180deg,#071026 0%, #071524 100%);color:#e6eef8;display:flex;min-height:100vh;align-items:stretch}
+    .app{
+      display:grid;
+      grid-template-columns:360px 1fr;
+      gap:18px;
+      width:100%;
+      padding:18px;
+      box-sizing:border-box;
+    }
+    .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:12px;
+      padding:14px;
+      box-shadow:0 6px 20px rgba(2,6,23,0.6);
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    h1{font-size:18px;margin:0 0 10px 0}
+    label{font-size:13px;color:var(--muted);display:block;margin-top:10px}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    button{background:var(--accent);border:none;color:#05203a;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+    .small{padding:6px 8px;font-size:13px}
+    .canvas-wrap{display:flex;flex-direction:column;height:calc(100vh - 36px - 36px);gap:12px}
+    #map{
+      background:linear-gradient(180deg,#082034,#032034 60%);border-radius:12px;flex:1;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.03)
+    }
+    canvas{width:100%;height:100%;display:block}
+    .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .chip{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:999px;font-size:13px}
+    .log{max-height:220px;overflow:auto;background:rgba(2,6,23,0.6);padding:8px;border-radius:8px;margin-top:10px;font-family:monospace;font-size:12px;color:#cfe9ff}
+    .row{display:flex;gap:8px;align-items:center}
+    input[type="range"]{width:100%}
+    .people-list{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+    .person-entry{display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,0.02);border-radius:8px}
+    .id-badge{font-weight:700;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.03)}
+    .muted{color:var(--muted);font-size:13px}
+    footer{font-size:12px;color:var(--muted);margin-top:10px}
+    .top-row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .danger{background:var(--danger);color:#2b0a10}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="panel" style="position:sticky;top:18px;align-self:start;">
+      <div class="top-row">
+        <h1>Simulated Tracker (Synthetic)</h1>
+        <div class="muted">v1.0</div>
+      </div>
+
+      <label>Controls</label>
+      <div class="controls">
+        <button id="startBtn" class="small">Start</button>
+        <button id="stopBtn" class="small ghost">Stop</button>
+        <button id="addBtn" class="small ghost">Add Person</button>
+        <button id="removeBtn" class="small ghost danger">Remove Person</button>
+      </div>
+
+      <label>Simulation speed</label>
+      <div class="row">
+        <input id="speedRange" type="range" min="0.25" max="4" step="0.25" value="1">
+        <div style="width:54px;text-align:right" id="speedVal">1×</div>
+      </div>
+
+      <label>Number of simulated people</label>
+      <div class="people-list" id="peopleList"></div>
+
+      <label>Export / Import (CSV)</label>
+      <div class="controls">
+        <button id="exportCSV" class="small">Export CSV</button>
+        <button id="clearLogs" class="small ghost">Clear Logs</button>
+        <input id="importFile" type="file" accept=".csv" style="display:none" />
+        <button id="importBtn" class="small ghost">Import CSV</button>
+      </div>
+
+      <label>Simulation log (synthetic events)</label>
+      <div class="log" id="logBox" aria-live="polite"></div>
+
+      <footer>
+        <strong>Legal & Privacy:</strong> This application only generates fake, randomized position events for testing UI and data flows. Do not use it with real people or real location sources without explicit, informed consent and appropriate legal safeguards.
+      </footer>
+    </div>
+
+    <div class="canvas-wrap">
+      <div class="panel" style="padding:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div class="muted">Map area (simulated)</div>
+            <div class="legend">
+              <div class="chip">Circles = simulated people</div>
+              <div class="chip">Lines = recent path</div>
+              <div class="chip">CSV export contains: id,timestamp,lat,lon,meta</div>
+            </div>
+          </div>
+          <div class="muted" id="stats">People: 0 · Events: 0</div>
+        </div>
+      </div>
+
+      <div id="map" class="panel">
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+<script>
+/*
+  Simulated Tracker (single-file)
+  - Completely synthetic data; no real-world geolocation or networks used.
+  - Each "person" has an id, x/y (canvas coords), speed vector and a path history.
+  - Events are generated periodically and logged; logs are exportable as CSV.
+*/
+
+/* Utility */
+const rand = (min, max) => Math.random() * (max - min) + min;
+const sample = arr => arr[Math.floor(Math.random() * arr.length)];
+const nowISO = (d=new Date()) => d.toISOString();
+
+/* Canvas setup */
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas(){
+  const rect = document.getElementById('map').getBoundingClientRect();
+  canvas.width = Math.floor(rect.width * devicePixelRatio);
+  canvas.height = Math.floor((rect.height) * devicePixelRatio);
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+/* Simulation state */
+let running = false;
+let simSpeed = 1; // multiplier
+let people = {}; // id -> person
+let logs = []; // synthetic events
+let eventCount = 0;
+
+/* Person model */
+function createPerson(id){
+  const padding = 40;
+  const w = canvas.width / devicePixelRatio;
+  const h = canvas.height / devicePixelRatio;
+  const p = {
+    id,
+    x: rand(padding, w - padding),
+    y: rand(padding, h - padding),
+    vx: rand(-50,50),
+    vy: rand(-50,50),
+    radius: rand(6,12),
+    color: `hsl(${Math.floor(rand(0,360))} 70% 60%)`,
+    path: [] // store last N points
+  };
+  // seed initial history
+  for(let i=0;i<6;i++){
+    p.path.push({x:p.x, y:p.y, t:Date.now() - (6-i)*1000});
+  }
+  return p;
+}
+
+/* add initial people for testing */
+for(let i=0;i<5;i++){
+  const id = `sim-${String(i+1).padStart(3,'0')}`;
+  people[id] = createPerson(id);
+}
+
+/* DOM elements */
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+const addBtn = document.getElementById('addBtn');
+const removeBtn = document.getElementById('removeBtn');
+const speedRange = document.getElementById('speedRange');
+const speedVal = document.getElementById('speedVal');
+const peopleList = document.getElementById('peopleList');
+const logBox = document.getElementById('logBox');
+const stats = document.getElementById('stats');
+const exportCSV = document.getElementById('exportCSV');
+const clearLogs = document.getElementById('clearLogs');
+const importBtn = document.getElementById('importBtn');
+const importFile = document.getElementById('importFile');
+
+function rebuildPeopleList(){
+  peopleList.innerHTML = '';
+  Object.values(people).forEach(p=>{
+    const div = document.createElement('div');
+    div.className = 'person-entry';
+    div.innerHTML = `<div style="display:flex;gap:8px;align-items:center">
+        <div style="width:12px;height:12px;border-radius:50%;background:${p.color}"></div>
+        <div>
+          <div class="id-badge">${p.id}</div>
+          <div class="muted">r:${p.radius.toFixed(0)}</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="muted">vx:${p.vx.toFixed(0)} vy:${p.vy.toFixed(0)}</div>
+      </div>`;
+    peopleList.appendChild(div);
+  });
+  stats.textContent = `People: ${Object.keys(people).length} · Events: ${eventCount}`;
+}
+rebuildPeopleList();
+
+/* Logging (synthetic events) */
+function pushEvent(e){
+  logs.push(e);
+  eventCount++;
+  // show last 8 lines in UI
+  const tail = logs.slice(-8).map(ev => `${ev.timestamp} | ${ev.id} | x:${ev.x.toFixed(1)} y:${ev.y.toFixed(1)} meta:${ev.meta||''}`);
+  logBox.textContent = tail.reverse().join('\n');
+  stats.textContent = `People: ${Object.keys(people).length} · Events: ${eventCount}`;
+}
+
+/* CSV export */
+function exportLogsCSV(){
+  const header = 'id,timestamp,x,y,meta\n';
+  const rows = logs.map(ev => `${ev.id},${ev.timestamp},${ev.x.toFixed(3)},${ev.y.toFixed(3)},"${(ev.meta||'').replace(/"/g,'""')}"`).join('\n');
+  const blob = new Blob([header+rows], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `simulated_events_${(new Date()).toISOString().replace(/[:.]/g,'-')}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* CSV import (for testing the UI) - will append to logs */
+function importCSV(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    const text = reader.result;
+    const lines = text.split(/\r?\n/).filter(Boolean);
+    if(lines.length <= 1) {
+      alert('CSV appears empty or only header.');
+      return;
+    }
+    for(let i=1;i<lines.length;i++){
+      const row = lines[i].split(',');
+      if(row.length < 4) continue;
+      const [id, ts, x, y, ...rest] = row;
+      logs.push({id:id.trim(), timestamp:ts.trim(), x:parseFloat(x), y:parseFloat(y), meta:rest.join(',').trim()});
+    }
+    eventCount = logs.length;
+    rebuildPeopleList();
+    pushEvent({id:'import', timestamp:nowISO(), x:0, y:0, meta:'imported csv'});
+  };
+  reader.readAsText(file);
+}
+
+/* Simulation step */
+let lastTime = performance.now();
+function step(now){
+  const dt = (now - lastTime) / 1000; // seconds
+  lastTime = now;
+  if(running){
+    const w = canvas.width / devicePixelRatio;
+    const h = canvas.height / devicePixelRatio;
+    Object.values(people).forEach(p=>{
+      // simple movement with occasional random steering
+      if(Math.random() < 0.08) {
+        p.vx += rand(-30,30);
+        p.vy += rand(-30,30);
+      }
+      // apply speed multiplier and dt
+      p.x += p.vx * dt * simSpeed;
+      p.y += p.vy * dt * simSpeed;
+      // bounce off walls with damping
+      if(p.x < p.radius + 4){ p.x = p.radius + 4; p.vx *= -0.8; }
+      if(p.x > w - p.radius - 4){ p.x = w - p.radius - 4; p.vx *= -0.8; }
+      if(p.y < p.radius + 4){ p.y = p.radius + 4; p.vy *= -0.8; }
+      if(p.y > h - p.radius - 4){ p.y = h - p.radius - 4; p.vy *= -0.8; }
+      // append path and trim
+      p.path.push({x:p.x,y:p.y,t:Date.now()});
+      if(p.path.length > 40) p.path.shift();
+
+      // occasionally generate an "event" (simulated update)
+      if(Math.random() < 0.25 * dt * simSpeed){
+        const ev = { id: p.id, timestamp: nowISO(), x: p.x, y: p.y, meta: `speed:${(Math.hypot(p.vx,p.vy)).toFixed(1)}` };
+        pushEvent(ev);
+      }
+    });
+  }
+
+  draw();
+  requestAnimationFrame(step);
+}
+requestAnimationFrame(step);
+
+/* draw function */
+function draw(){
+  const w = canvas.width / devicePixelRatio;
+  const h = canvas.height / devicePixelRatio;
+  // background grid
+  ctx.clearRect(0,0,w,h);
+  // faint grid
+  ctx.save();
+  ctx.globalAlpha = 0.06;
+  ctx.fillStyle = '#013147';
+  ctx.fillRect(0,0,w,h);
+  ctx.restore();
+
+  // draw each person's path
+  Object.values(people).forEach(p=>{
+    // path
+    ctx.beginPath();
+    for(let i=0;i<p.path.length;i++){
+      const pt = p.path[i];
+      const alpha = i / p.path.length;
+      if(i===0) ctx.moveTo(pt.x,pt.y);
+      else ctx.lineTo(pt.x,pt.y);
+    }
+    ctx.strokeStyle = p.color;
+    ctx.globalAlpha = 0.12;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // head (circle)
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.fillStyle = p.color;
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    ctx.lineWidth = 1;
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+
+    // label
+    ctx.font = '12px Inter, Arial';
+    ctx.fillStyle = '#eaf6ff';
+    ctx.fillText(p.id, p.x + p.radius + 6, p.y - p.radius - 6);
+  });
+}
+
+/* UI event handlers */
+startBtn.addEventListener('click', ()=>{ running = true; lastTime = performance.now(); startBtn.disabled = true; stopBtn.disabled = false; pushEvent({id:'system', timestamp:nowISO(), x:0,y:0, meta:'start'})});
+stopBtn.addEventListener('click', ()=>{ running = false; startBtn.disabled = false; stopBtn.disabled = true; pushEvent({id:'system', timestamp:nowISO(), x:0,y:0, meta:'stop'})});
+addBtn.addEventListener('click', ()=>{
+  const id = `sim-${String(Object.keys(people).length+1).padStart(3,'0')}`;
+  people[id] = createPerson(id);
+  pushEvent({id:'system', timestamp:nowISO(), x:0,y:0, meta:`added ${id}`});
+  rebuildPeopleList();
+});
+removeBtn.addEventListener('click', ()=>{
+  const ids = Object.keys(people);
+  if(ids.length===0) return;
+  const id = ids[ids.length-1];
+  delete people[id];
+  pushEvent({id:'system', timestamp:nowISO(), x:0,y:0, meta:`removed ${id}`});
+  rebuildPeopleList();
+});
+
+speedRange.addEventListener('input', (e)=>{
+  simSpeed = parseFloat(e.target.value);
+  speedVal.textContent = simSpeed + '×';
+  pushEvent({id:'system', timestamp:nowISO(), x:0,y:0, meta:`speed ${simSpeed}x`});
+});
+
+exportCSV.addEventListener('click', exportLogsCSV);
+clearLogs.addEventListener('click', ()=>{
+  logs = [];
+  eventCount = 0;
+  logBox.textContent = '';
+  stats.textContent = `People: ${Object.keys(people).length} · Events: ${eventCount}`;
+  pushEvent({id:'system', timestamp:nowISO(), x:0,y:0, meta:'cleared logs'});
+});
+
+importBtn.addEventListener('click', ()=> importFile.click());
+importFile.addEventListener('change', (ev)=>{
+  if(ev.target.files.length) importCSV(ev.target.files[0]);
+  ev.target.value = '';
+});
+
+/* Start/stop defaults */
+stopBtn.disabled = true;
+
+/* Accessibility: keyboard shortcuts for convenience (simulation only) */
+window.addEventListener('keydown', (e)=>{
+  if(e.key === ' ') { e.preventDefault(); running = !running; startBtn.disabled = running; stopBtn.disabled = !running; pushEvent({id:'system', timestamp:nowISO(),x:0,y:0, meta: running? 'space:resume' : 'space:pause'}); }
+  if(e.key === 'a') { addBtn.click(); }
+  if(e.key === 'r') { removeBtn.click(); }
+});
+
+/* Initial log */
+pushEvent({id:'system', timestamp:nowISO(), x:0, y:0, meta:'simulation initialized (synthetic data only)'});
+rebuildPeopleList();
+</script>
+</body>
+</html>
