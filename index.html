@@ -1,320 +1,227 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<title>Street-following Sim (Leaflet + OSRM) — Synthetic Only</title>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="" crossorigin=""/>
+<meta charset="utf-8"/>
+<title>StreetSim Ultra — Synthetic Realistic Tracking</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
-  html,body,#map { height:100%; margin:0; padding:0; }
-  .controls {
-    position: absolute;
-    left: 12px;
-    top: 12px;
-    z-index:1000;
-    background: rgba(10,15,25,0.85);
-    color:#eaf6ff;
-    padding:10px;
-    border-radius:8px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    min-width:240px;
-  }
-  .controls button { margin:4px 4px 4px 0; padding:6px 10px; border-radius:6px; border:none; cursor:pointer; font-weight:600;}
-  .btn-ghost { background:transparent; color:#a9c4e8; border:1px solid rgba(255,255,255,0.06); }
-  .btn-primary { background:#60a5fa; color:#042033; }
-  .muted { color:#a9c4e8; font-size:13px; margin-top:6px; display:block; }
-  .small { font-size:13px; padding:6px 8px; }
-  label{font-size:13px; color:#9fb4d9; display:block; margin-top:8px;}
-  input[type="range"]{ width:100%; }
+  html,body,#map{height:100%;margin:0;padding:0}
+  :root{--panel-bg:rgba(10,14,20,0.94);--accent:#38bdf8;--muted:#9fb6cf}
+  .ui{position:absolute;top:16px;left:16px;z-index:1200;width:360px;max-height:90%;overflow:auto;
+      background:var(--panel-bg);color:#eef;border-radius:12px;padding:14px;font-family:Inter,system-ui}
+  .ui h2{margin:0;font-size:16px}
+  .ui .muted{color:var(--muted);font-size:13px}
+  .btn{border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+  .btn.primary{background:var(--accent);color:#02121a}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.08)}
+  .row{display:flex;gap:6px;align-items:center;margin-top:6px}
+  .section{margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08)}
+  label{font-size:13px;color:var(--muted)}
+  select,input[type="range"],input[type="text"]{width:100%}
+  .tiny{font-size:12px;color:var(--muted)}
+  .toggle-panel{position:absolute;top:16px;right:16px;z-index:1300;background:var(--accent);
+    color:#02121a;border:none;border-radius:50%;width:46px;height:46px;font-size:22px;cursor:pointer}
 </style>
 </head>
 <body>
 <div id="map"></div>
+<button id="togglePanel" class="toggle-panel">⚙️</button>
+<div class="ui" id="controlPanel">
+  <h2>StreetSim Ultra Controls</h2>
+  <div class="muted">Synthetic street-following with lights, stops, zones, and names.</div>
 
-<div class="controls" aria-live="polite">
-  <div style="display:flex;justify-content:space-between;align-items:center">
-    <strong>Street-following Simulator</strong>
-    <span style="font-size:12px;color:#9fb4d9">Synthetic only</span>
+  <div class="section">
+    <label>Agent Name</label>
+    <input type="text" id="agentName" placeholder="e.g. Unit 42"/>
+    <label>Profile</label>
+    <select id="agentProfile">
+      <option value="walk">Walk</option>
+      <option value="bike">Bike</option>
+      <option value="drive" selected>Drive</option>
+    </select>
+    <div class="row"><button id="addAgent" class="btn primary">Add Agent</button>
+      <button id="removeAgent" class="btn ghost">Remove Last</button></div>
   </div>
 
-  <div style="margin-top:8px">
-    <button id="spawnBtn" class="btn-primary small">Add Agent</button>
-    <button id="removeBtn" class="btn-ghost small">Remove Agent</button>
-    <button id="pauseBtn" class="btn-ghost small">Pause</button>
+  <div class="section">
+    <label>Speed multiplier <span id="speedMultLabel">1.0×</span></label>
+    <input id="speedMult" type="range" min="0.25" max="3" step="0.25" value="1"/>
+    <div class="row">
+      <label>Realistic behavior</label>
+      <input type="checkbox" id="realistic" checked/>
+    </div>
   </div>
 
-  <label>Speed multiplier: <span id="speedLabel">1.0×</span></label>
-  <input id="speedRange" type="range" min="0.25" max="4" step="0.25" value="1">
+  <div class="section">
+    <h3 style="font-size:14px;margin:0 0 6px 0">Traffic & Stops</h3>
+    <button id="addLight" class="btn ghost">Add Light</button>
+    <button id="addStop" class="btn ghost">Add Stop Sign</button>
+    <button id="toggleSel" class="btn ghost">Toggle Selected</button>
+  </div>
 
-  <label>Agent type</label>
-  <select id="agentType" style="width:100%;padding:6px;border-radius:6px">
-    <option value="walk">Pedestrian (~1.4 m/s)</option>
-    <option value="bike">Cyclist (~5 m/s)</option>
-    <option value="drive">Car (~13 m/s)</option>
-  </select>
+  <div class="section">
+    <h3 style="font-size:14px;margin:0 0 6px 0">Zones</h3>
+    <button id="addZone" class="btn ghost">Draw Congestion Zone</button>
+    <button id="clearZones" class="btn ghost">Clear Zones</button>
+  </div>
 
-  <div class="muted">Click map to set a custom target for the last spawned agent (synthetic only).</div>
-  <div class="muted" style="margin-top:8px">Routing by OSRM public demo server. This demo is for testing/visual only. Do not use to track real people.</div>
+  <div class="section row">
+    <button id="pauseAll" class="btn ghost">Pause</button>
+    <button id="toggleTrails" class="btn ghost">Trails</button>
+    <button id="export" class="btn ghost">Export CSV</button>
+  </div>
+
+  <div class="tiny" style="margin-top:8px">
+    Click map: reroute last agent<br>
+    Shift+Click: add light<br>
+    Shift+Alt+Click: add stop sign<br>
+    Drag when in “Draw Congestion Zone” mode
+  </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
+
 <script>
-/*
-  Street-following Simulator (single HTML)
-  - Synthetic agents follow real street geometry retrieved from OSRM (public demo).
-  - Agents choose random origins/destinations inside the current map bounds.
-  - Movement is purely simulated: positions are not tied to any real device/user.
-  - Do NOT use for tracking real people.
-*/
+/* ==== CONFIG ==== */
+const OSRM = 'https://router.project-osrm.org';
+const SPEEDS = { walk:1.4, bike:5, drive:13 };
+const COLORS = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2'];
+function rand(a,b){return a+Math.random()*(b-a);}
 
-/* --- Config --- */
-const OSRM_BASE = 'https://router.project-osrm.org'; // public demo (use responsibly)
-const DEFAULT_AGENT_COUNTS = 2;
-const WALK_SPEED = 1.4; // m/s
-const BIKE_SPEED = 5.0; // m/s
-const DRIVE_SPEED = 13.0; // m/s
+/* ==== MAP ==== */
+const map=L.map('map').setView([40.73,-73.94],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  {attribution:'© OSM contributors'}).addTo(map);
 
-/* --- Setup map --- */
-const map = L.map('map', {zoomControl:true}).setView([48.8566, 2.3522], 13); // default: Paris
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
+/* ==== ENTITIES ==== */
+let agents=new Map(),nextId=1;
+let lights=new Map(),stops=new Map(),zones=[],selected=null;
+let running=true,mult=1;
 
-/* --- Utilities --- */
-function haversine(a, b) {
-  const R = 6371000;
-  const toRad = x => x * Math.PI/180;
-  const dLat = toRad(b.lat - a.lat);
-  const dLon = toRad(b.lng - a.lng);
-  const lat1 = toRad(a.lat);
-  const lat2 = toRad(b.lat);
-  const sinDlat = Math.sin(dLat/2);
-  const sinDlon = Math.sin(dLon/2);
-  const aa = sinDlat*sinDlat + Math.cos(lat1)*Math.cos(lat2)*sinDlon*sinDlon;
-  const c = 2 * Math.atan2(Math.sqrt(aa), Math.sqrt(1-aa));
-  return R * c;
-}
-
-function lerpLatLng(a,b,t){
-  return { lat: a.lat + (b.lat - a.lat)*t, lng: a.lng + (b.lng - a.lng)*t };
-}
-
-/* --- Agent model --- */
-class Agent {
-  constructor(id, routeGeo, baseSpeed, color){
-    this.id = id;
-    this.route = routeGeo; // array of [lng,lat] pairs from OSRM geojson coordinates
-    // convert to LatLng objects and compute cumulative distances
-    this.points = this.route.map(c => ({lat:c[1], lng:c[0]}));
-    this.distances = [0];
-    for(let i=1;i<this.points.length;i++){
-      this.distances[i] = this.distances[i-1] + haversine(this.points[i-1], this.points[i]);
+/* ==== CLASSES ==== */
+class Agent{
+  constructor(id,name,coords,baseSpeed,color,profile){
+    this.id=id;this.name=name;this.profile=profile;
+    this.points=coords.map(c=>({lat:c[1],lng:c[0]}));
+    this.dist=[0];for(let i=1;i<this.points.length;i++)
+      this.dist[i]=this.dist[i-1]+distance(this.points[i-1],this.points[i]);
+    this.total=this.dist.at(-1);this.p=0;this.speed=0;
+    this.targetSpeed=baseSpeed;this.baseSpeed=baseSpeed;this.color=color;this.finished=false;
+    this.marker=L.circleMarker(this.points[0],{radius:7,color:'#000',fillColor:color,fillOpacity:1}).addTo(map)
+      .bindTooltip(`${name}`,{permanent:true,offset:[12,0]});
+    this.trail=L.polyline([], {color,weight:3,opacity:.8}).addTo(map);
+    this.trace=[];this.state="moving";
+  }
+  posAt(m){if(m<=0)return this.points[0];if(m>=this.total)return this.points.at(-1);
+    let i=this.dist.findIndex(x=>x>=m);if(i<1)i=1;
+    let t=(m-this.dist[i-1])/(this.dist[i]-this.dist[i-1]);return lerp(this.points[i-1],this.points[i],t);}
+  step(dt,mult,realistic){
+    if(this.finished)return;
+    let pos=this.posAt(this.p);let factor=mult;let sp=this.baseSpeed*factor;
+    let stopDist=Infinity;
+    // lights
+    for(const Lgt of lights.values()){
+      if(Lgt.state==='red'){let d=distance(pos,Lgt.latlng);if(d<15){sp=0;this.state="red light";}}
     }
-    this.total = this.distances[this.distances.length-1] || 0;
-    this.progress = 0; // meters along route
-    this.baseSpeed = baseSpeed; // m/s
-    this.color = color || '#ff7f0e';
-    // Leaflet representation
-    this.marker = L.circleMarker(this.points[0], {radius:7, fillColor:this.color, color:'#001219', weight:1, fillOpacity:1}).addTo(map);
-    this.polyline = L.polyline(this.points, {color:this.color, opacity:0.7}).addTo(map);
-    this.trail = L.polyline([], {color:this.color, opacity:0.9, weight:3}).addTo(map);
-    this.finished = false;
-  }
-
-  getPositionAt(progressMeters){
-    if(this.total <= 0) return this.points[0];
-    if(progressMeters <= 0) return this.points[0];
-    if(progressMeters >= this.total) return this.points[this.points.length-1];
-    // find segment
-    let i = 0;
-    while(i+1 < this.distances.length && this.distances[i+1] < progressMeters) i++;
-    const segStartDist = this.distances[i];
-    const segRatio = (progressMeters - segStartDist) / (this.distances[i+1] - segStartDist);
-    return lerpLatLng(this.points[i], this.points[i+1], segRatio);
-  }
-
-  step(dt, speedMultiplier){
-    if(this.finished) return;
-    const travel = this.baseSpeed * speedMultiplier * dt; // meters
-    this.progress += travel;
-    if(this.progress >= this.total){
-      this.progress = this.total;
-      this.finished = true;
+    // stops
+    for(const St of stops.values()){
+      let d=distance(pos,St.latlng);if(!St.passed.has(this.id)&&d<12){
+        sp=0;this.state="stop sign";setTimeout(()=>St.passed.add(this.id),3000);
+      }
     }
-    const pos = this.getPositionAt(this.progress);
-    this.marker.setLatLng(pos);
-    // extend trail
-    const latlng = L.latLng(pos.lat, pos.lng);
-    const arr = this.trail.getLatLngs();
-    arr.push(latlng);
-    if(arr.length > 200) arr.shift();
-    this.trail.setLatLngs(arr);
-  }
-
-  remove(){
-    map.removeLayer(this.marker);
-    map.removeLayer(this.polyline);
-    map.removeLayer(this.trail);
+    // zones
+    for(const z of zones){if(pointInPoly(pos,z)){sp*=rand(0.4,0.6);this.state="congested";}}
+    // random pauses
+    if(realistic && Math.random()<0.0005){sp=0;this.state="random pause";setTimeout(()=>this.state="moving",rand(2000,5000));}
+    this.targetSpeed=sp;
+    // accelerate / decelerate
+    let accel=realistic?2:99;let diff=this.targetSpeed-this.speed;
+    this.speed+=Math.sign(diff)*Math.min(Math.abs(diff),accel*dt);
+    this.p+=this.speed*dt; if(this.p>=this.total){this.p=this.total;this.finished=true;this.state="arrived";}
+    const cur=this.posAt(this.p);this.marker.setLatLng(cur);
+    let arr=this.trail.getLatLngs();arr.push(cur);if(arr.length>200)arr.shift();this.trail.setLatLngs(arr);
+    this.trace.push({t:Date.now(),lat:cur.lat,lng:cur.lng,spd:this.speed,state:this.state});
   }
 }
+class TrafficLight{
+  constructor(latlng){this.id='L'+lights.size;this.latlng=latlng;this.state='red';
+    this.marker=L.circleMarker(latlng,{radius:8,color:'#fff',fillColor:'red',fillOpacity:.8}).addTo(map);
+    this.marker.on('click',()=>{selected=this;updateStyle(this);});}
+  toggle(){this.state=this.state==='red'?'green':'red';updateStyle(this);}
+}
+class StopSign{
+  constructor(latlng){this.id='S'+stops.size;this.latlng=latlng;this.passed=new Set();
+    this.marker=L.circleMarker(latlng,{radius:7,color:'#fff',fillColor:'orange',fillOpacity:.8}).addTo(map);
+    this.marker.on('click',()=>{selected=this;});}
+}
 
-/* --- Simulation manager --- */
-const agents = new Map();
-let nextAgentId = 1;
-let running = true;
-let speedMultiplier = 1.0;
+/* ==== HELPERS ==== */
+function updateStyle(l){l.marker.setStyle({fillColor:l.state==='red'?'red':'lime',radius:selected===l?12:8});}
+function distance(a,b){const R=6371e3;const φ1=a.lat*Math.PI/180,φ2=b.lat*Math.PI/180;
+ const dφ=(b.lat-a.lat)*Math.PI/180,dλ=(b.lng-a.lng)*Math.PI/180;
+ const s=Math.sin(dφ/2)**2+Math.cos(φ1)*Math.cos(φ2)*Math.sin(dλ/2)**2;
+ return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));}
+function lerp(a,b,t){return{lat:a.lat+(b.lat-a.lat)*t,lng:a.lng+(b.lng-a.lng)*t};}
+async function route(o,d){const url=`${OSRM}/route/v1/driving/${o.lng},${o.lat};${d.lng},${d.lat}?overview=full&geometries=geojson`;
+ const r=await fetch(url);const j=await r.json();return j.routes[0].geometry.coordinates;}
+function randomPoint(b){return L.latLng(rand(b.getSouth(),b.getNorth()),rand(b.getWest(),b.getEast()));}
+function pointInPoly(p,poly){return L.polygon(poly).getBounds().contains(p);}
 
-/* --- UI elements --- */
-const spawnBtn = document.getElementById('spawnBtn');
-const removeBtn = document.getElementById('removeBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const speedRange = document.getElementById('speedRange');
-const speedLabel = document.getElementById('speedLabel');
-const agentTypeSel = document.getElementById('agentType');
+/* ==== CONTROLS ==== */
+const panel=document.getElementById('controlPanel'),toggle=document.getElementById('togglePanel');
+toggle.onclick=()=>{panel.style.display=panel.style.display==='none'?'block':'none';};
+document.getElementById('addAgent').onclick=async()=>{
+  const prof=document.getElementById('agentProfile').value;
+  const name=document.getElementById('agentName').value||"Agent "+nextId;
+  const b=map.getBounds(),o=randomPoint(b),d=randomPoint(b);const coords=await route(o,d);
+  const id='A'+nextId++,sp=SPEEDS[prof]||SPEEDS.drive;
+  agents.set(id,new Agent(id,name,coords,sp,COLORS[nextId%COLORS.length],prof));
+};
+document.getElementById('removeAgent').onclick=()=>{
+  const k=[...agents.keys()].pop();if(!k)return;agents.get(k).marker.remove();agents.get(k).trail.remove();agents.delete(k);
+};
+document.getElementById('pauseAll').onclick=()=>running=!running;
+document.getElementById('speedMult').oninput=e=>{mult=parseFloat(e.target.value);
+  document.getElementById('speedMultLabel').innerText=mult+'×';};
+document.getElementById('toggleTrails').onclick=()=>{agents.forEach(a=>a.trail.setStyle({opacity:a.trail.options.opacity?0:.8}));};
+document.getElementById('export').onclick=()=>{
+  let csv='id,name,profile,t,lat,lng,spd,state\n';
+  agents.forEach((a,id)=>{a.trace.forEach(r=>csv+=`${id},${a.name},${a.profile},${r.t},${r.lat},${r.lng},${r.spd},${r.state}\n`);});
+  download(csv,'synthetic.csv');
+};
+function download(content,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content]));a.download=name;a.click();}
+document.getElementById('addLight').onclick=()=>alert('Shift+Click map to place light');
+document.getElementById('addStop').onclick=()=>alert('Shift+Alt+Click map to place stop sign');
+document.getElementById('toggleSel').onclick=()=>{if(selected?.toggle)selected.toggle();};
+let drawControl=null;
+document.getElementById('addZone').onclick=()=>{
+  if(drawControl){map.removeControl(drawControl);}
+  drawControl=new L.Control.Draw({draw:{polygon:false,marker:false,circle:false,polyline:false,rectangle:true},edit:false});
+  map.addControl(drawControl);
+};
+document.getElementById('clearZones').onclick=()=>{zones=[];map.eachLayer(l=>{if(l instanceof L.Rectangle)map.removeLayer(l);});};
 
-speedRange.addEventListener('input', ()=>{
-  speedMultiplier = parseFloat(speedRange.value);
-  speedLabel.textContent = speedMultiplier.toFixed(2) + '×';
-});
-
-pauseBtn.addEventListener('click', ()=>{
-  running = !running;
-  pauseBtn.textContent = running ? 'Pause' : 'Resume';
-});
-
-removeBtn.addEventListener('click', ()=>{
-  // remove last agent
-  const keys = Array.from(agents.keys());
-  if(!keys.length) return;
-  const last = keys[keys.length-1];
-  agents.get(last).remove();
-  agents.delete(last);
-});
-
-/* Click map to set a target for last agent (synthetic only) */
-map.on('click', async (e) => {
-  const keys = Array.from(agents.keys());
-  if(!keys.length) return;
-  const lastId = keys[keys.length-1];
-  // compute route from current marker to clicked point
-  const lastAgent = agents.get(lastId);
-  if(!lastAgent) return;
-  // origin = agent current position, dest = clicked point
-  const origin = lastAgent.marker.getLatLng();
-  const dest = e.latlng;
-  try {
-    const geo = await fetchRouteGeojson(origin, dest, agentTypeSel.value);
-    if(!geo || !geo.coordinates || !geo.coordinates.length) return;
-    // remove existing layers and replace with new
-    lastAgent.remove();
-    const speed = getBaseSpeed(agentTypeSel.value);
-    const color = pickColor();
-    const agent = new Agent(lastId, geo.coordinates, speed, color);
-    agent.progress = 0;
-    agents.set(lastId, agent);
-  } catch(err){
-    console.warn('route fail', err);
-    alert('Failed to compute route (routing service error). Try again or move map.');
+/* ==== MAP INTERACTIONS ==== */
+map.on('click',async e=>{
+  if(e.originalEvent.shiftKey && e.originalEvent.altKey){
+    const S=new StopSign(e.latlng);stops.set(S.id,S);selected=S;
+  }else if(e.originalEvent.shiftKey){
+    const Lgt=new TrafficLight(e.latlng);lights.set(Lgt.id,Lgt);selected=Lgt;updateStyle(Lgt);
+  }else{
+    const k=[...agents.keys()].pop();if(!k)return;
+    const coords=await route(agents.get(k).marker.getLatLng(),e.latlng);
+    agents.set(k,new Agent(k,agents.get(k).name,coords,agents.get(k).baseSpeed,agents.get(k).color,agents.get(k).profile));
   }
 });
+map.on(L.Draw.Event.CREATED,function(e){if(e.layerType==='rectangle'){zones.push(e.layer.getLatLngs()[0]);e.layer.addTo(map);}});
 
-/* Spawn handler */
-spawnBtn.addEventListener('click', async ()=>{
-  try {
-    spawnBtn.disabled = true;
-    const bounds = map.getBounds();
-    const origin = randomPointInBounds(bounds);
-    const dest = randomPointInBounds(bounds);
-    const profile = agentTypeSel.value;
-    const geo = await fetchRouteGeojson(origin, dest, profile);
-    if(!geo || !geo.coordinates || geo.coordinates.length < 2) {
-      alert('Routing failed; try again or pan/zoom the map to an area with streets.');
-      spawnBtn.disabled = false;
-      return;
-    }
-    const id = 'agent-' + String(nextAgentId++).padStart(3,'0');
-    const speed = getBaseSpeed(profile);
-    const color = pickColor();
-    const agent = new Agent(id, geo.coordinates, speed, color);
-    agents.set(id, agent);
-    spawnBtn.disabled = false;
-  } catch(err){
-    console.error(err);
-    alert('Error fetching route. Check network or try a different area.');
-    spawnBtn.disabled = false;
-  }
-});
-
-/* initial spawn */
-(async ()=> {
-  for(let i=0;i<DEFAULT_AGENT_COUNTS;i++){
-    spawnBtn.click();
-    // slight delay to avoid hammering routing server
-    await new Promise(r => setTimeout(r, 250));
-  }
-})();
-
-/* --- Helpers --- */
-function pickColor(){
-  const pal = ['#ff7f0e','#2ca02c','#1f77b4','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f'];
-  return pal[Math.floor(Math.random()*pal.length)];
-}
-
-function getBaseSpeed(type){
-  if(type === 'walk') return WALK_SPEED;
-  if(type === 'bike') return BIKE_SPEED;
-  return DRIVE_SPEED;
-}
-
-function randomPointInBounds(bounds){
-  const south = bounds.getSouth();
-  const north = bounds.getNorth();
-  const west = bounds.getWest();
-  const east = bounds.getEast();
-  return L.latLng(rand(south,north), rand(west,east));
-}
-
-function rand(a,b){ return Math.random()*(b-a)+a; }
-
-/* fetch route from OSRM (geojson) */
-/* profile: 'walk' -> use driving profile with OSRM public; OSRM demo supports car profile only on public endpoint.
-   For this demo we use 'driving' for car and bike and walk for simplicity; route profiles vary by deployment.
-   NOTE: Public OSRM demo primarily supports driving; for true walking/biking you'd need a server with those profiles.
-*/
-async function fetchRouteGeojson(aLatLng, bLatLng, agentProfile = 'drive'){
-  // choose profile param - map agentProfile to OSRM profile string (public demo primarily supports 'driving')
-  const profile = 'driving'; // using driving for all so shapes follow drivable roads on public service
-  const coords = `${aLatLng.lng},${aLatLng.lat};${bLatLng.lng},${bLatLng.lat}`;
-  const url = `${OSRM_BASE}/route/v1/${profile}/${coords}?overview=full&geometries=geojson&steps=false`;
-  const res = await fetch(url);
-  if(!res.ok) throw new Error('Routing error: ' + res.status);
-  const data = await res.json();
-  if(!data.routes || !data.routes.length) return null;
-  return data.routes[0].geometry;
-}
-
-/* --- Animator --- */
-let lastTS = performance.now();
-function animate(ts){
-  const dt = (ts - lastTS)/1000;
-  lastTS = ts;
-  if(running){
-    for(const agent of agents.values()){
-      agent.step(dt, speedMultiplier);
-    }
-  }
-  requestAnimationFrame(animate);
-}
-requestAnimationFrame(animate);
-
-/* --- Accessibility / cleanup --- */
-window.addEventListener('beforeunload', ()=> {
-  // remove leaflet layers (not necessary but tidy)
-  agents.forEach(a => a.remove());
-});
-
+/* ==== LOOP ==== */
+let last=performance.now();function loop(t){const dt=(t-last)/1000;last=t;
+  if(running)agents.forEach(a=>a.step(dt,mult,document.getElementById('realistic').checked));
+  requestAnimationFrame(loop);}requestAnimationFrame(loop);
 </script>
 </body>
 </html>
