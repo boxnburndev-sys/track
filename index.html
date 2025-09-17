@@ -1,186 +1,456 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>StreetSim Ultra++ Global Tracker</title>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<style>
-html,body,#map{height:100%;margin:0;padding:0}
-:root{--panel-bg:rgba(10,14,20,0.95);--accent:#38bdf8;--muted:#9fb6cf;--border:rgba(255,255,255,0.1)}
-#map{z-index:0}
-#panel{position:absolute;top:0;left:0;width:440px;height:100%;background:var(--panel-bg);
-  color:#eef;font-family:Inter,system-ui;z-index:1500;overflow:auto;padding:14px}
-#panel h1{margin:0;font-size:20px;color:#fff}
-#panel h2{margin:12px 0 4px 0;font-size:15px;color:#fff}
-#panel label{display:block;font-size:13px;color:var(--muted);margin-top:6px}
-#panel input[type=text],#panel select,#panel input[type=color],#panel input[type=range]{
-  width:100%;padding:4px 6px;border-radius:6px;border:none;margin-top:2px;background:#1a2230;color:#fff}
-#panel input[type=checkbox]{margin-right:4px}
-.section{margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
-.btn{padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;border:none}
-.btn.primary{background:var(--accent);color:#02121a}
-.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
-.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}
-#hud{margin-top:10px;background:rgba(0,0,0,0.25);padding:8px;border-radius:8px;font-size:13px;line-height:1.35;max-height:240px;overflow:auto}
-#hud .agent{border-bottom:1px solid rgba(255,255,255,0.08);padding:6px 0}
-#hud .agent:last-child{border-bottom:none}
-#hud span{display:inline-block;min-width:60px}
-.toggle{position:absolute;top:10px;left:460px;z-index:2000;background:var(--accent);color:#02121a;
-  padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:600}
-</style>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="canonical" href="https://pranx.com/hacker/">
+<link rel="amphtml" href="https://pranx.com/hacker/amp/">
+<script src="jquery-jqui.js"></script>
+<link rel="stylesheet" href="hacker.css">
+<title>Online Hacker Simulator and Typer | Pranx.com</title>
+<meta name="description" content="Start typing random text to simulate that you're hacking a computer system. Discover the programs clicking the icons on the right or...">
+<meta name="keywords" content="hacker,typer">
+<meta property="og:title" content="Hacker Typer by Pranx">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pranx.com/hacker/">
+<meta property="og:image" content="https://pranx.com/hacker/og.jpg">
+<meta property="og:description" content="Start typing random text to simulate that you're hacking a computer system. Discover the programs clicking the icons on the right or...">
+<link rel="alternate" hreflang="es" href="https://pranx.com/hacker/simulador/">
+<link rel="alternate" hreflang="pt" href="https://pranx.com/hacker/simulador-pt/">
+<link rel="alternate" hreflang="fr" href="https://pranx.com/hacker/simulateur/">
+<link rel="alternate" hreflang="de" href="https://pranx.com/hacker/simulator/">
+<link rel="alternate" hreflang="tr" href="https://pranx.com/hacker/simulatoru/">
+<link rel="alternate" hreflang="ru" href="https://pranx.com/hacker/typer/">
+<script async=true>!function(){var o,e=window.location.hostname,t=document.createElement("script"),n=document.getElementsByTagName("script")[0],e="https://cmp.inmobi.com".concat("/choice/","xncav4ssEzwLp","/",e,"/choice.js?tag_version=V3"),p=0;t.async=!0,t.type="text/javascript",t.src=e,n.parentNode.insertBefore(t,n),function(){for(var e,a="__tcfapiLocator",n=[],s=window;s;){try{if(s.frames[a]){e=s;break}}catch(e){}if(s===window.top)break;s=s.parent}e||(!function e(){var t,n=s.document,p=!!s.frames[a];return p||(n.body?((t=n.createElement("iframe")).style.cssText="display:none",t.name=a,n.body.appendChild(t)):setTimeout(e,5)),!p}(),s.__tcfapi=function(){var e,t=arguments;if(!t.length)return n;"setGdprApplies"===t[0]?3<t.length&&2===t[2]&&"boolean"==typeof t[3]&&(e=t[3],"function"==typeof t[2]&&t[2]("set",!0)):"ping"===t[0]?(e={gdprApplies:e,cmpLoaded:!1,cmpStatus:"stub"},"function"==typeof t[2]&&t[2](e)):("init"===t[0]&&"object"==typeof t[3]&&(t[3]=Object.assign(t[3],{tag_version:"V3"})),n.push(t))},s.addEventListener("message",function(n){var p="string"==typeof n.data,e={};try{e=p?JSON.parse(n.data):n.data}catch(e){}var a=e.__tcfapiCall;a&&window.__tcfapi(a.command,a.version,function(e,t){t={__tcfapiReturn:{returnValue:e,success:t,callId:a.callId}};p&&(t=JSON.stringify(t)),n&&n.source&&n.source.postMessage&&n.source.postMessage(t,"*")},a.parameter)},!1))}(),o=["2:tcfeuv2","6:uspv1","7:usnatv1","8:usca","9:usvav1","10:uscov1","11:usutv1","12:usctv1"],window.__gpp_addFrame=function(e){var t;window.frames[e]||(document.body?((t=document.createElement("iframe")).style.cssText="display:none",t.name=e,document.body.appendChild(t)):window.setTimeout(window.__gpp_addFrame,10,e))},window.__gpp_stub=function(){var e=arguments;if(__gpp.queue=__gpp.queue||[],__gpp.events=__gpp.events||[],!e.length||1==e.length&&"queue"==e[0])return __gpp.queue;if(1==e.length&&"events"==e[0])return __gpp.events;var t=e[0],n=1<e.length?e[1]:null,p=2<e.length?e[2]:null;if("ping"===t)n({gppVersion:"1.1",cmpStatus:"stub",cmpDisplayStatus:"hidden",signalStatus:"not ready",supportedAPIs:o,cmpId:10,sectionList:[],applicableSections:[-1],gppString:"",parsedSections:{}},!0);else if("addEventListener"===t){"lastId"in __gpp||(__gpp.lastId=0),__gpp.lastId++;var a=__gpp.lastId;__gpp.events.push({id:a,callback:n,parameter:p}),n({eventName:"listenerRegistered",listenerId:a,data:!0,pingData:{gppVersion:"1.1",cmpStatus:"stub",cmpDisplayStatus:"hidden",signalStatus:"not ready",supportedAPIs:o,cmpId:10,sectionList:[],applicableSections:[-1],gppString:"",parsedSections:{}}},!0)}else if("removeEventListener"===t){for(var s=!1,i=0;i<__gpp.events.length;i++)if(__gpp.events[i].id==p){__gpp.events.splice(i,1),s=!0;break}n({eventName:"listenerRemoved",listenerId:p,data:s,pingData:{gppVersion:"1.1",cmpStatus:"stub",cmpDisplayStatus:"hidden",signalStatus:"not ready",supportedAPIs:o,cmpId:10,sectionList:[],applicableSections:[-1],gppString:"",parsedSections:{}}},!0)}else"hasSection"===t?n(!1,!0):"getSection"===t||"getField"===t?n(null,!0):__gpp.queue.push([].slice.apply(e))},window.__gpp_msghandler=function(n){var p,a="string"==typeof n.data;try{var t=a?JSON.parse(n.data):n.data}catch(e){t=null}"object"==typeof t&&null!==t&&"__gppCall"in t&&(p=t.__gppCall,window.__gpp(p.command,function(e,t){t={__gppReturn:{returnValue:e,success:t,callId:p.callId}};n.source.postMessage(a?JSON.stringify(t):t,"*")},"parameter"in p?p.parameter:null,"version"in p?p.version:"1.1"))},"__gpp"in window&&"function"==typeof window.__gpp||(window.__gpp=window.__gpp_stub,window.addEventListener("message",window.__gpp_msghandler,!1),window.__gpp_addFrame("__gppLocator"));var a,s=function(){var e=arguments;typeof window.__uspapi!==s&&setTimeout(function(){void 0!==window.__uspapi&&window.__uspapi.apply(window.__uspapi,e)},500)};void 0===window.__uspapi&&(window.__uspapi=s,a=setInterval(function(){p++,window.__uspapi===s&&p<3?console.warn("USP is not accessible"):clearInterval(a)},6e3))}();</script>
+<link rel="stylesheet" href="https://a.pub.network/core/pubfig/cls.css"><script data-cfasync="false">var freestar = freestar || {};freestar.queue = freestar.queue || [];freestar.config = freestar.config || {};freestar.config.enabled_slots = [];freestar.initCallback = function () { (freestar.config.enabled_slots.length === 0) ? freestar.initCallbackCalled = false : freestar.newAdSlots(freestar.config.enabled_slots) }</script><script src="https://a.pub.network/pranx-com/pubfig.min.js" async></script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5RJ4ST6');</script>
 </head>
 <body>
-<div id="map"></div>
-<div id="panel">
-  <h1>StreetSim Ultra++ Global</h1>
-  <p style="color:var(--muted);font-size:13px">Worldwide synthetic tracking with lights, stops & agents</p>
-  <div class="section">
-    <h2>Agents</h2>
-    <label>Custom Name</label>
-    <input type="text" id="agentName" placeholder="Name"/>
-    <label>Profile</label>
-    <select id="agentProfile">
-      <option value="walk">Walk</option>
-      <option value="bike">Bike</option>
-      <option value="drive" selected>Drive</option>
-    </select>
-    <div class="row">
-      <button id="addAgent" class="btn primary">Add Agent</button>
-      <button id="removeAgent" class="btn ghost">Remove Last</button>
-    </div>
-  </div>
-  <div class="section">
-    <h2>Simulation</h2>
-    <label>Speed Multiplier <span id="speedLabel">1.0×</span></label>
-    <input type="range" min="0.25" max="4" step="0.25" value="1" id="speedMult"/>
-    <div class="row">
-      <label><input type="checkbox" id="realistic" checked/> Realistic Accel/Decel</label>
-    </div>
-    <div class="row">
-      <button id="pauseAll" class="btn ghost">Pause</button>
-      <button id="toggleTrails" class="btn ghost">Toggle Trails</button>
-    </div>
-  </div>
-  <div class="section">
-    <h2>Traffic System</h2>
-    <label>Traffic Light Color</label>
-    <input type="color" id="lightColor" value="#ff0000"/>
-    <label>Stop Sign Color</label>
-    <input type="color" id="stopColor" value="#ffffff"/>
-    <div class="row"><button id="applyColors" class="btn primary">Apply Colors</button></div>
-  </div>
-  <div class="section">
-    <h2>Data</h2>
-    <div class="row">
-      <button id="export" class="btn ghost">Export CSV</button>
-      <button id="clearAll" class="btn ghost">Clear All</button>
-    </div>
-  </div>
-  <div id="hud"></div>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5RJ4ST6" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div id="desktop" class="start">
+	<div id="typingArea">
+		<div id="wrapDesktopTyper">
+			<span id="desktopTyper"></span><span class="cursor">_</span>
+		</div>
+	</div>
+	<div class="window closed howToUse" data-ico="?" data-title="How to use Pranx?">
+		<div class="scrollbar-rail">
+<p><strong>Welcome to this interactive hacker simulator. Click the icons on the right to open the programs or press the numbers on your keyboard. Drag the windows with your mouse to organize them on your&nbsp;desktop.</strong></p>
+<h2>How to avoid getting&nbsp;hacked?</h2>
+<p>There are some simple things you can do to keep from getting hacked. You don’t need to be a computer expert to take some of these simple steps that could save you time, frustration, and maybe even&nbsp;money.</p>
+<h3>Keep Everything Up to&nbsp;Date</h3>
+<p>Maybe you ignore those popups on your computer or phone telling you there is a new update available. Keep in mind that those updates are often security enhancements. When software developers learn that hackers have learned how to get into their software, they issue a more secure update. Be sure you are using the latest by accepting those invitations to update or turn on the auto-update feature when available.</p>
+<h3>Install Anti-Virus and Anti-Malware&nbsp;Software</h3>
+<p>You might think that you don’t need special software to keep your computer and information safe, but you do. Install anti-virus and anti-malware software from a reputable company, and again, be sure to keep it updated. Also, set it to scan your computer regularly to search for any new malicious&nbsp;programs.</p>
+<h3>Use Strong Passwords and Change Them&nbsp;Regularly</h3>
+<p>Weak passwords make a hacker’s work easy. People often use passwords that are quickly figured out or based on the name of a pet or loved one that is easily found online. Be sure to choose something no one could guess and include upper and lower case letters, numbers, and at least one symbol. Never use the same password on more than one site. If someone gains access to your password on one site, they could access your other&nbsp;accounts.</p>
+<h3>Use Two-Factor Authentication</h3>
+<p>Two-Factor Authentication is an amazing new security feature that too many people ignore. Many banks, email providers, and other websites allow you to enable this feature to keep unauthorized users out of your accounts. When you enter your username and password, the website sends a code to your phone or email account. You then enter that code to access the site. Most sites give you the option of “remembering” the computer you use every day. But if someone tries to access your account from another computer, a stolen password will not be enough for them to hack&nbsp;you.</p>
+<h3>Delete Suspicious&nbsp;Emails</h3>
+<p>Reputable companies will never ask you for a password via email. Family members will rarely ask for money to be wired to an unknown location. If an email sounds strange, there is a good chance it is malicious. Go ahead and delete it. If you are not sure, contact the sender directly via phone to check it&nbsp;out.</p>
+<h3>Secure Your Smartphone</h3>
+<p>Many people dislike the inconvenience of needing to enter a pin-code or password to use their smartphone. But it is worth it. If you were to lose your phone, without a pin-code or password, the person who finds it could have access to your accounts, passwords, and even payment information.</p>
+<h2>Interactive&nbsp;Programs</h2>
+<p>The interactive programs can be opened with the icons on the right of your screen. Try to interact with these programs because most of them responds to your&nbsp;actions.</p>
+<p>Play that you mine Bitcoins, watch the surveillance camera, crack passwords, control a nuclear power plant, break into the Interpol database or find the best secret&nbsp;deals!</p>
+<h2>Passive&nbsp;Windows</h2>
+<p><img src="geek-hacker-typer.jpg" alt="hacker typer"></p>
+<p>Press the number buttons on your keyboard (0-9) to open the passive windows. These programs show a static or animated window on the center of your screen. You can drag them around with your mouse. Close them pressing the Space&nbsp;key.</p>
+<p>Display "Access Denied" or "Permission Granted" warnings, start a self destruction countdown, play an animated neural network tracing or&nbsp;a <a href="/matrix-code-rain/" target="_blank">Matrix code&nbsp;rain</a>. Install a virus, download confidential data, trace a computer's location with satellites, and&nbsp;more!</p>
+<h2>Hacker&nbsp;Typer</h2>
+<p>Minimize or close all windows and start pressing random buttons on your keyboard to simulate that you're writing program. The hacker typer will add more than one character at once to the screen to make your writing look&nbsp;faster.</p>
+<p>Open the "Remote Connection" program to simulate that you're hacking a top secret governmet server. This automated hacker typer will trigger server responses and will show various programs and warnings on the&nbsp;screen.</p>
+<p>For a more&nbsp;detailed <a href="https://html-online.com/articles/geek-hacker-typer/" target="_blank" rel="nofollow">instruction guide please visit&nbsp;HTML-Online</a>!</p>
+<p><strong>Find more online pranks&nbsp;at&nbsp;<a href="/">Pranx</a>!</strong></p>
+		</div>
+	</div>
+	<div class="window closed mainServer" data-ico="&#9577;" data-title="Main Server">
+		<div class="scrollbar-rail">
+			<div id="serverScreen">
+				<div class="serverScreenTop">
+					Server IP address: 23.86.111.0<br>
+					Main gvt server. WARNING: Top secret!
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="window closed bitcoinMiner" data-ico="B" data-title="Bitcoin Miner">
+		<div class="scrollbar-rail">
+			<div class="bitcoin">
+				<div class="divTable">
+					<div class="divTableBody">
+						<div class="divTableRow">
+							<div class="divTableCell">
+								128.154.26.11 Connected to btcn.miner.bitcoin-heap.htmlg.com<br>
+								Block: ...7e9Wq#001 Diff:147M<span class="hideUnder1000"> Permission granted!<br>
+								Initialized GPU #0 - #32: [OK] (1.092Ph/s) Started @ <span class="clock"></span><br>
+								Overclock set to 300% | BW:[ 55/ 13/ 4Mh/kWh]  <br>
+								<span class="showWhileMining">Running BitCrane.exe in unsafe mode | STATUS: Miner running...</span></span>
+							</div>
+							<div class="divTableCell">
+								<div id="btcValletWrap">
+									<div id="valletHeader">Wallet</div>
+									BTC<span id="btcVallet">8</span>
+									<span id="btcIcon"></span>
+									<div id="btcEstim">&asymp; $<span id="btcDollar">839664</span></div>
+								</div>
+							</div>
+						</div>
+						<div class="divTableRow showWhileMining hideUnder1000">
+							<div class="divTableCell">
+								<div class="divTable bordered">
+									<div class="divTableBody">
+										<div class="divTableHeading">
+											<div class="divTableHead">ASICs</div>
+											<div class="divTableHead">Accepted</div>
+											<div class="divTableHead">Rejected</div>
+											<div class="divTableHead">GH/s 5s</div>
+										</div>
+										<div class="divTableRow">
+											<div class="divTableCell">1</div>
+											<div class="divTableCell"><span class="addRemoveRandom" data-rand="100">32442</span></div>
+											<div class="divTableCell"><span class="addRemoveRandom" data-rand="5">354</span></div>
+											<div class="divTableCell"><span class="addRemoveRandom" data-rand="10">353</span>.54 Gh/s</div>
+										</div>
+										<div class="divTableRow">
+											<div class="divTableCell">32</div>
+											<div class="divTableCell"><span class="addRemoveRandom" data-rand="100">56954</span></div>
+											<div class="divTableCell"><span class="addRemoveRandom" data-rand="5">8763</span></div>
+											<div class="divTableCell"><span class="addRemoveRandom" data-rand="2">34</span>.99 Gh/s</div>
+										</div>
+										<div class="divTableRow">
+											<div class="divTableCell">Sum</div>
+											<div class="divTableCell"><span class="addRemoveRandom" data-rand="90">8345345</span></div>
+											<div class="divTableCell"><span class="addRemoveRandom" data-rand="10">32122</span></div>
+											<div class="divTableCell">~<span class="addRemoveRandom" data-rand="2">153</span> Gh/s</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="divTableCell">
+								<div id="miningGraph">
+								</div>
+							</div>
+						</div>
+						<div class="divTableRow">
+							<div class="divTableCell">
+								<div id="rollingBitcoinScreenWrap">
+									<div id="rollingBitcoinScreen">
+										<div class="button" id="startBitcoinMine">Start Mining</div>
+									</div>
+								</div>
+							</div>
+							<div class="divTableCell">
+								<div class="showWhileMining">
+									<div class="blinking" id="miningBlinker">
+										Mining...
+									</div>
+									<div class="bitcoinAnimation">
+										<div class="heap">
+										</div>
+										<div class="hammer">
+										</div>
+										<div class="bang">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="window closed bank" data-ico="&#9712;" data-title="Headquarter surveillance">
+		<div class="wrapVideo">
+			<div class="loading">Connecting...<br><img src="wait.gif" alt="loading"></div>
+			<div class="watch"></div>
+			<div class="video" data-iframe='CTV9kOEP8Mo'></div>
+		</div>
+	</div>
+	<div class="window closed passwordCracker" data-ico="*|" data-title="Password Cracker">
+		<div class="scrollbar-rail">
+			<div id="wrapPWCrack">
+				<div id="pWCrackHeader">
+					<span id="pwButt2">Crack</span><span id="pwButt1">Reset</span><span id="pwButt3">Penetrate</span>
+				</div>
+				<div id="pWCrackInner">
+					<div id="lockAnimation">
+					</div>
+					<table>
+						<tbody>
+							<tr>
+								<td>Target:</td>
+								<td><span contenteditable="true" class="inputfield" spellcheck="false" id="targetIp">23.86.111.0</span></td>
+							</tr>
+							<tr>
+								<td>Database:</td>
+								<td><span contenteditable="true" class="inputfield" spellcheck="false">User table / Admin role</span></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="divTable" id="pwCrackTable">
+					<div class="divTableBody">
+						<div class="divTableRow" id="pwGuesserRow">
+							<div class="divTableCell" id="pw1">&nbsp;</div>
+							<div class="divTableCell" id="pw2"></div>
+							<div class="divTableCell" id="pw3"></div>
+							<div class="divTableCell" id="pw4"></div>
+							<div class="divTableCell" id="pw5"></div>
+							<div class="divTableCell" id="pw6"></div>
+							<div class="divTableCell" id="pw7"></div>
+							<div class="divTableCell" id="pw8"></div>
+							<div class="divTableCell" id="pw9"></div>
+							<div class="divTableCell" id="pw10"></div>
+							<div class="divTableCell" id="pw11"></div>
+							<div class="divTableCell" id="pw12"></div>
+							<div class="divTableCell" id="pw13"></div>
+							<div class="divTableCell" id="pw14"></div>
+							<div class="divTableCell" id="pw15"></div>
+						</div>
+						<div class="divTableRow" id="pwOkRow">
+							<div class="divTableCell nowGuessing" id="pwok1">&nbsp;</div>
+							<div class="divTableCell" id="pwok2"></div>
+							<div class="divTableCell" id="pwok3"></div>
+							<div class="divTableCell" id="pwok4"></div>
+							<div class="divTableCell" id="pwok5"></div>
+							<div class="divTableCell" id="pwok6"></div>
+							<div class="divTableCell" id="pwok7"></div>
+							<div class="divTableCell" id="pwok8"></div>
+							<div class="divTableCell" id="pwok9"></div>
+							<div class="divTableCell" id="pwok10"></div>
+							<div class="divTableCell" id="pwok11"></div>
+							<div class="divTableCell" id="pwok12"></div>
+							<div class="divTableCell" id="pwok13"></div>
+							<div class="divTableCell" id="pwok14"></div>
+							<div class="divTableCell" id="pwok15"></div>
+						</div>
+						<div class="divTableRow" id="pwCheckedRow">
+							<div class="divTableCell" id="pwcheck1">&times;</div>
+							<div class="divTableCell" id="pwcheck2">&times;</div>
+							<div class="divTableCell" id="pwcheck3">&times;</div>
+							<div class="divTableCell" id="pwcheck4">&times;</div>
+							<div class="divTableCell" id="pwcheck5">&times;</div>
+							<div class="divTableCell" id="pwcheck6">&times;</div>
+							<div class="divTableCell" id="pwcheck7">&times;</div>
+							<div class="divTableCell" id="pwcheck8">&times;</div>
+							<div class="divTableCell" id="pwcheck9">&times;</div>
+							<div class="divTableCell" id="pwcheck10">&times;</div>
+							<div class="divTableCell" id="pwcheck11">&times;</div>
+							<div class="divTableCell" id="pwcheck12">&times;</div>
+							<div class="divTableCell" id="pwcheck13">&times;</div>
+							<div class="divTableCell" id="pwcheck14">&times;</div>
+							<div class="divTableCell" id="pwcheck15">&times;</div>
+						</div>
+					</div>
+				</div>
+				<div id="pwdResult">
+					<div class="aligncenter">Status: Standby<br><span class="button animatedButton" onclick="startPwCrack(10)">Start brute force attack</span></div>
+				</div>
+				<div id="pwdLegal">
+					<strong>Legal notice:</strong> Using <em>Password&nbsp;Cracker&trade;</em> for harmful and illegal activities is strictly prohibited and punishable&nbsp;by&nbsp;death!
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="window closed reactor" data-ico="&#8855;" data-title="Nuclear Plant">
+		<div class="scrollbar-rail">
+			<div id="wrapNuclearPlant">
+				<div id="nuclearFloods">
+					<div class="flood"><div data-percent="50" data-step="6"></div></div>
+					<div class="flood" id="flood2"><div data-percent="50" data-step="6"></div></div>
+					<div class="flood" id="flood3"><div data-percent="50" data-step="36"></div></div>
+					<div class="flood" id="flood4"><div data-percent="50" data-step="36"></div></div>
+					<div class="flood" id="flood5"><div data-percent="15" data-step="6"></div></div>
+					<div class="flood" id="flood6"><div data-percent="75" data-step="46"></div></div>
+				</div>
+				<div id="nuclearPlant">
+					<div class="randomnr" id="nr01" data-step="0.3">14.9</div>
+					<div class="randomnr" id="nr02" data-step="0.3">15.0</div>
+					<div class="randomnr" id="nr03" data-step="5">630</div>
+					<div class="randomnr" id="nr04" data-step="0.3">2020</div>
+					<div class="randomnr" id="nr05" data-step="0.3">0</div>
+					<div class="randomnr" id="nr06" data-step="100">70000</div>
+					<div class="randomnr" id="nr07" data-step="1">0</div>
+					<div class="randomnr" id="nr08" data-step="0.2">14.7</div>
+					<div class="randomnr yellow" id="nr09" data-step="1">120</div>
+					<div class="randomnr yellow" id="nr10" data-step="10">2568</div>
+					<div class="randomnr yellow" id="nr11" data-step="0">0</div>
+					<div class="randomnr yellow" id="nr12" data-step="10">1493</div>
+					<div class="randomnr" id="nr13" data-step="5">120</div>
+					<div class="randomnr yellow" id="nr14" data-step="0">0.0</div>
+					<div class="randomnr yellow" id="nr15" data-step="5">1500</div>
+					<div class="randomnr" id="nr16" data-step="10">2170</div>
+					<div class="randomnr" id="nr17" data-step="5">2170</div>
+					<div class="randomnr" id="nr18" data-step="1">220</div>
+					<div class="randomnr" id="nr19" data-step="0.5">220</div>
+					<div class="randomnr" id="nr20" data-step="0">0.0</div>
+					<div class="randomnr" id="nr21" data-step="5">924</div>
+					<div class="randomnr" id="nr22" data-step="2">603</div>
+					<div class="randomnr" id="nr23" data-step="0.5">43</div>
+					<div class="randomnr" id="nr24" data-step="5">555</div>
+					<div class="randomnr" id="nr25" data-step="5">1951</div>
+					<div class="randomnr" id="nr26" data-step="0.5">603</div>
+					<div class="randomnr" id="nr27" data-step="5">924</div>
+					<div class="randomnr yellow" id="nr28" data-step="5">1493</div>
+					<div class="randomnr" id="nr29" data-step="5">288</div>
+					<div class="randomnr" id="nr30" data-step="0.5">65</div>
+					<div class="randomnr" id="nr31" data-step="0">0</div>
+					<div class="randomnr" id="nr32" data-step="2">43</div>
+					<div class="randomnr" id="nr33" data-step="7">555</div>
+					<div class="randomnr" id="nr34" data-step="20">1925</div>
+					<div class="randomnr" id="nr35" data-step="0.5">65.8</div>
+					<div class="randomnr" id="nr36" data-step="2">288</div>
+					<div class="randomnr yellow" id="nr37" data-step="0.8">1493</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="window closed remoteConnection" data-ico="&#9577;" data-title="Remote Connection">
+		<div class="scrollbar-rail">
+			<span id="remoteText"></span>
+			<span class='cursor'></span>
+		</div>
+	</div>
+	<div class="window closed reklamocskak" data-ico="$" data-title="Advertisements">
+		<div class="wrapFreestar"><div align="center" data-freestar-ad="__320x100 __300x250" id="Pranx_hacker_300x250"><script data-cfasync="false">freestar.config.enabled_slots.push({ placementName: "Pranx_hacker_300x250", slotId: "Pranx_hacker_300x250" });</script></div></div>
+		<div id="wrapBestDeals">
+			<a class="fancylink" title="Text Fancy" href="https://texteditor.com/" target="_blank" rel="external nofollow"><span>░░░▀█▀▒██▀░▀▄▀░▀█▀░░</span><span>░░░▒█▒░█▄▄░▀▒▀░▒▀▒▒░░</span><span>▒██▀░█▀▄░▄░▀█▀░▄▀▄▒█▀▄</span><span>░█▄▄▒█▄▀░█░▒█▒░▀▄▀░█▀▄</span><span>░░░░░░░▄▀░░░▄░░▄▄▒▄▄░▒</span><span>▒░▒░░▄░▀▄▄░▀▄▀░█▒▀▒█░</span></a>
+		</div>
+	</div>
+	<div class="window closed interpol" data-ico="&hArr;" data-title="Compiler">
+		<div id="compierWrap">
+			<canvas id='compilerZoomBox'></canvas>
+			<canvas id='compilerWaves'></canvas>
+			<div id="compilerConsoleText"></div>
+		</div>
+	</div>
+	<div class="window closed consoleWindow" data-ico=">." data-title="Program Console">
+		<div class="scrollbar-rail">
+			<span id="consoleText"></span>
+			<span class='cursor'></span>
+		</div>
+	</div>
+	<div id="accessDenied" class="ablakocska">
+		<span>&#128473; Access Denied </span>
+	</div>
+	<div id="permissionGranted" class="ablakocska">
+		<span>Permission Granted <img src="lock-green.gif" alt="unlocked"> </span>
+	</div>
+	<div id="selfDestruct" class="ablakocska">
+		<span>Self Destruct<br><strong id="selfDestructCount">600</strong><br><span>Sequence engaged</span></span>
+	</div>
+	<div id="topSecret" class="ablakocska">
+		<img src="top-secret.png" alt="classified">
+	</div>
+	<div id="partikulacskak" class="ablakocska">
+		<div>
+			<span>Neural Network Tracing</span>
+			<div id="partikulacskakIde"></div>
+		</div>
+	</div>
+	<div id="matrixRain" class="ablakocska">
+		<div class="windowHeader"><strong>Compiling...</strong></div>
+		<div id="wrapMtRain">
+			<div id="mtRain">
+			</div>
+		</div>
+	</div>
+	<div id="pcvirus" class="ablakocska">
+		<div>
+			Installing Malware<br>
+			<img src="skull.png" alt="skull">
+			<div class="processBar"><div></div></div>
+		</div>
+	</div>
+	<div id="grafikon" class="ablakocska">
+		<div id="wrapChart">
+			<canvas id="chart" width="400" height="300"></canvas>
+		</div>
+	</div>
+	<div id="downloadingData" class="ablakocska">
+		<div>
+			Downloading Confidential Data<br>
+			<img src="topsecret.png" alt="highly classified">
+			<div class="processBar"><div></div></div>
+		</div>
+	</div>
+	<div id="tracingIP" class="ablakocska">
+		<div id="satellite">
+			<h3 class="blinking">Establishing<br>satellite connection</h3>
+			<div id="satelliteAnimWrap">
+				<div id="satelliteAnim" class="clockwiseTurn">
+					<img id="globe" alt="globe" src="globe.gif">
+					<img id="triangle" alt="triangle" src="triangle.gif">
+					<img class="satellite counterClockwiseTurn" id="szat1" alt="satellite" src="satellite.gif">
+					<img class="satellite counterClockwiseTurn" id="szat2" alt="satellite" src="satellite.gif">
+					<img class="satellite counterClockwiseTurn" id="szat3" alt="satellite" src="satellite.gif">
+				</div>
+				<div id="mapWrap">
+					<img id="zoomMap" alt="hacker map" src="map1.jpg">
+					<div id="mapPosition" class="blinking"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="taskbar">
+		<div id="startMenuButton">
+			<span>&equiv;</span>&nbsp;Start
+		</div>
+	</div>
+	<div id="startMenu">
+		<a href="/" class="backHome" title="Pranx Home"><img src="https://pranx.com/images/logo-s.png" alt="Pranx home"></a>
+		<ul class="languagePicker">
+			<li><a class="rus" href="/hacker/typer/">typer</a></li>
+			<li><a class="tur" href="/hacker/simulatoru/">simulatoru</a></li>
+			<li><a class="esp" href="/hacker/simulador/">simulador</a></li>
+			<li><a class="por" href="/hacker/simulador-pt/">simulador-pt</a></li>
+			<li><a class="ger" href="/hacker/simulator/">simulator</a></li>
+			<li><a class="fra" href="/hacker/simulateur/">simulateur</a></li>
+		</ul>
+		<h1>Hacker Simulator and Typer</h1>
+		<p>Start typing random text on your keyboard to simulate that you're hacking a computer.</p>
+		<div class="center"><a id="cleanDesktop" class="button"><span>&times;</span>All</a> <a id="automateHacker" class="button">Animate</a> <a id="toggleFullScreen" class="button">Full&nbsp;Screen</a></div>
+		<p>Discover the programs clicking the icons on the right or press the numbers on your keyboard to show various windows.</p>
+		<p class="center"><a id="howToUseToggle" class="button">How 2 Use?</a><br><img src="geek-hacker-typer.jpg" alt="hacker typer"></p>
+<div class="wrapFreestar"><div align="center" data-freestar-ad="__320x100" id="Pranx_hacker_300x100_left"><script data-cfasync="false">freestar.config.enabled_slots.push({ placementName: "Pranx_hacker_300x100_left", slotId: "Pranx_hacker_300x100_left" });</script></div></div>
+		<p>With this hacker simulator game we want to raise awareness for computer and internet&nbsp;security. Learn&nbsp;more about ethical white hat hacking <a title="Go to Wikipedia" href="https://en.wikipedia.org/wiki/White_hat_(computer_security)" target="_blank" rel="external nofollow">here</a>.</p>
+		<div class="wrapAd">
+		</div>
+		<div id="prank_dab"><div class="adBanner">.</div></div>
+	</div>
+	<div id="icons">
+	</div>
 </div>
-<div class="toggle" id="togglePanel">Hide Panel</div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-const OSRM='https://router.project-osrm.org'
-const SPEEDS={walk:1.4,bike:5,drive:13}
-const COLORS=['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#17becf']
-const map=L.map('map').setView([30,0],3)
-L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
-  subdomains:['mt0','mt1','mt2','mt3'],maxZoom:20,attribution:'Imagery © Google'
-}).addTo(map)
-let agents=new Map(),lights=new Map(),stops=new Map(),nextId=1,running=true,mult=1
-class Agent{
-  constructor(id,name,coords,baseSpeed,color,profile){
-    this.id=id;this.name=name;this.profile=profile;this.color=color
-    this.points=coords.map(c=>({lat:c[1],lng:c[0]}))
-    this.dist=[0]
-    for(let i=1;i<this.points.length;i++)this.dist[i]=this.dist[i-1]+distance(this.points[i-1],this.points[i])
-    this.total=this.dist.at(-1)
-    this.p=0;this.speed=0;this.targetSpeed=baseSpeed;this.baseSpeed=baseSpeed;this.finished=false
-    this.marker=L.circleMarker(this.points[0],{radius:7,color:'#000',fillColor:color,fillOpacity:1}).addTo(map).bindTooltip(name,{permanent:true,offset:[12,0]})
-    this.trail=L.polyline([], {color,weight:3,opacity:.8}).addTo(map)
-    this.trace=[];this.state="moving"
-  }
-  remove(){this.marker.remove();this.trail.remove()}
-  posAt(m){if(m<=0)return this.points[0];if(m>=this.total)return this.points.at(-1)
-    let i=this.dist.findIndex(x=>x>=m);if(i<1)i=1
-    let t=(m-this.dist[i-1])/(this.dist[i]-this.dist[i-1])
-    return lerp(this.points[i-1],this.points[i],t)}
-  step(dt,mult,realistic){
-    if(this.finished)return
-    let pos=this.posAt(this.p);let sp=this.baseSpeed*mult;this.state="moving"
-    for(const l of lights.values()){if(distance(pos,l.latlng)<22&&l.state==='red'){sp=0;this.state="red light"}}
-    for(const s of stops.values()){if(distance(pos,s.latlng)<15&&!s.passed.has(this.id)){sp=0;this.state="stop";s.passed.add(this.id);setTimeout(()=>{s.passed.delete(this.id)},3000)}}
-    this.targetSpeed=sp;let accel=realistic?2:99;let diff=this.targetSpeed-this.speed;this.speed+=Math.sign(diff)*Math.min(Math.abs(diff),accel*dt)
-    this.p+=this.speed*dt;if(this.p>=this.total){this.p=this.total;this.finished=true;this.state="arrived"}
-    const cur=this.posAt(this.p);this.marker.setLatLng(cur)
-    let arr=this.trail.getLatLngs();arr.push(cur);if(arr.length>250)arr.shift();this.trail.setLatLngs(arr)
-    this.trace.push({t:Date.now(),lat:cur.lat,lng:cur.lng,spd:this.speed,state:this.state})
-  }
-}
-class TrafficLight{
-  constructor(latlng){this.latlng=latlng;this.state='red'
-    this.marker=L.circleMarker(latlng,{radius:8,color:'#fff',fillColor:'red',fillOpacity:.8}).addTo(map)
-    setInterval(()=>this.toggle(),10000)}
-  toggle(){this.state=this.state==='red'?'green':'red';this.marker.setStyle({fillColor:this.state==='red'?'red':'lime'})}
-}
-class StopSign{
-  constructor(latlng){this.latlng=latlng
-    this.marker=L.circleMarker(latlng,{radius:6,color:'#000',fillColor:'#fff',fillOpacity:.9}).addTo(map)
-    this.passed=new Set()}
-}
-function distance(a,b){const R=6371e3;const φ1=a.lat*Math.PI/180,φ2=b.lat*Math.PI/180
-  const dφ=(b.lat-a.lat)*Math.PI/180,dλ=(b.lng-a.lng)*Math.PI/180
-  const s=Math.sin(dφ/2)**2+Math.cos(φ1)*Math.cos(φ2)*Math.sin(dλ/2)**2
-  return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s))}
-function lerp(a,b,t){return{lat:a.lat+(b.lat-a.lat)*t,lng:a.lng+(b.lng-a.lng)*t}}
-async function route(o,d){const url=`${OSRM}/route/v1/driving/${o.lng},${o.lat};${d.lng},${d.lat}?overview=full&geometries=geojson`
-  const r=await fetch(url);const j=await r.json();return j.routes[0].geometry.coordinates}
-function rand(a,b){return a+Math.random()*(b-a)}
-function randomPoint(){return L.latLng(rand(-55,55),rand(-170,170))}
-function updateHUD(){const div=document.getElementById('hud');div.innerHTML=''
-  agents.forEach(a=>{const cur=a.posAt(a.p)
-    div.innerHTML+=`<div class="agent"><b>${a.name}</b> (${a.profile})<br>
-    <span>Speed:</span>${a.speed.toFixed(1)} m/s<br>
-    <span>State:</span>${a.state}<br>
-    <span>Lat:</span>${cur.lat.toFixed(4)}<br>
-    <span>Lng:</span>${cur.lng.toFixed(4)}</div>`})}
-document.getElementById('addAgent').onclick=async()=>{const prof=document.getElementById('agentProfile').value
-  const name=document.getElementById('agentName').value||"Agent "+nextId
-  const o=randomPoint(),d=randomPoint();const coords=await route(o,d)
-  const id='A'+nextId++,sp=SPEEDS[prof]||SPEEDS.drive
-  agents.set(id,new Agent(id,name,coords,sp,COLORS[nextId%COLORS.length],prof))}
-document.getElementById('removeAgent').onclick=()=>{const k=[...agents.keys()].pop();if(!k)return
-  agents.get(k).remove();agents.delete(k)}
-document.getElementById('pauseAll').onclick=()=>{running=!running}
-document.getElementById('speedMult').oninput=e=>{mult=parseFloat(e.target.value);document.getElementById('speedLabel').innerText=mult+'×'}
-document.getElementById('toggleTrails').onclick=()=>{agents.forEach(a=>a.trail.setStyle({opacity:a.trail.options.opacity?0:.8}))}
-document.getElementById('applyColors').onclick=()=>{const lc=document.getElementById('lightColor').value;const sc=document.getElementById('stopColor').value
-  lights.forEach(l=>l.marker.setStyle({fillColor:lc}));stops.forEach(s=>s.marker.setStyle({fillColor:sc}))}
-document.getElementById('export').onclick=()=>{let csv='id,name,profile,t,lat,lng,spd,state\n'
-  agents.forEach((a,id)=>{a.trace.forEach(r=>csv+=`${id},${a.name},${a.profile},${r.t},${r.lat},${r.lng},${r.spd},${r.state}\n`)})
-  download(csv,'agents.csv')}
-document.getElementById('clearAll').onclick=()=>{agents.forEach(a=>a.remove());agents.clear()}
-function download(content,name){const a=document.createElement('a')
-  a.href=URL.createObjectURL(new Blob([content]));a.download=name;a.click()}
-map.on('click',async e=>{const k=[...agents.keys()].pop();if(!k)return
-  const old=agents.get(k);old.remove();const coords=await route(old.marker.getLatLng(),e.latlng)
-  agents.set(k,new Agent(old.id,old.name,coords,old.baseSpeed,old.color,old.profile))})
-function placeGlobalLights(){for(let i=0;i<30;i++){lights.set('L'+i,new TrafficLight(randomPoint()))}
-  for(let j=0;j<30;j++){stops.set('S'+j,new StopSign(randomPoint()))}}
-placeGlobalLights()
-let last=performance.now()
-function loop(t){const dt=(t-last)/1000;last=t
-  if(running)agents.forEach(a=>a.step(dt,mult,document.getElementById('realistic').checked))
-  updateHUD();requestAnimationFrame(loop)}
-requestAnimationFrame(loop)
-const toggle=document.getElementById('togglePanel')
-const panel=document.getElementById('panel')
-let visible=true
-toggle.onclick=()=>{visible=!visible
-  panel.style.display=visible?'block':'none'
-  toggle.innerText=visible?'Hide Panel':'Show Panel'}
-</script>
+<div id="wrapParticles">
+	<div id="particles-js">
+	</div>
+</div>
+<div id="languageBits">
+	<span>Sorry, you are using ad&nbsp;blocker.</span>
+	<span>Disable AdBlock</span>
+	<span>How?</span>
+	<span>No match</span>
+	<span>SUCCESS</span>
+	<span>Running brute-force attack</span>
+	<span>Please wait for the solution</span>
+	<span>SUCCESS: Admin password found</span>
+	<span>Password</span>
+	<span>Status: Standby</span>
+	<span>Start brute force attack</span>
+	<span>Locating</span>
+	<span>Tracking IP</span>
+	<span>Location found</span>
+	<span>Tracking SIM</span>
+	<span>Minimize</span>
+	<span>Maximize</span>
+	<span>Close</span>
+	<span></span>
+</div>
+<script src="particles.min.js"></script>
+<script src="hacker.js"></script>
 </body>
 </html>
