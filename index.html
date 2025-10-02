@@ -3,297 +3,127 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mindmap — Malware (interactief)</title>
+  <title>Mindmap — Malware</title>
   <style>
-    :root{
-      --bg:#0f1724; --card:#0b1220; --accent:#7dd3fc; --muted:#94a3b8; --glass:rgba(255,255,255,0.03);
-      --radius:14px; --shadow: 0 10px 30px rgba(2,6,23,0.6);
-    }
-    html,body{height:100%;margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;color:#e6eef8;background:linear-gradient(180deg,#071124 0%, #081827 60%);}
-    .wrap{max-width:1200px;margin:28px auto;padding:24px;}
-    header{display:flex;align-items:center;gap:18px;margin-bottom:18px}
-    header h1{font-size:20px;margin:0}
-    header p{margin:0;color:var(--muted)}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);}
-
-    /* Tree / mindmap styles using nested details/summary lists */
-    .mindmap{display:flex;justify-content:center;padding:28px 12px}
-    .tree{width:100%;max-width:1100px}
-    details{margin:8px 0;padding-left:22px;position:relative}
-    details > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:10px;background:var(--glass);backdrop-filter: blur(6px);}
-    details[open] > summary{background:linear-gradient(90deg, rgba(125,211,252,0.08), rgba(125,211,252,0.03));box-shadow:0 6px 18px rgba(13,45,78,0.35)}
-    summary::-webkit-details-marker{display:none}
-
-    .node-title{display:flex;flex-direction:column}
-    .node-title .title{font-weight:600}
-    .node-title .subtitle{font-size:12px;color:var(--muted)}
-
-    /* connectors */
-    details::before{content:"";position:absolute;left:0;top:18px;width:14px;height:2px;background:linear-gradient(90deg, transparent, rgba(148,163,184,0.08));}
-    details::after{content:"";position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(180deg, rgba(125,211,252,0.15), transparent);}    
-    details > details::after{left:6px}
-
-    /* root styling */
-    .root summary{justify-content:center;background:linear-gradient(90deg,#0369a1,#7dd3fc);color:#021124}
-    .controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-    .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:8px;color:var(--accent);cursor:pointer}
-    .btn.secondary{color:var(--muted)}
-    footer{margin-top:18px;color:var(--muted);font-size:13px}
-
-    /* responsive tweaks */
-    @media (max-width:720px){.wrap{padding:18px}.mindmap{padding:12px}.card{padding:12px}}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0f1724;color:#e6eef8;}
+    h1{text-align:center;color:#7dd3fc;margin:20px 0}
+    svg{width:100%;height:100vh;}
+    .node{fill:#0b1220;stroke:#7dd3fc;stroke-width:2px;rx:12;ry:12;}
+    .label{fill:#e6eef8;font-size:14px;text-anchor:middle;font-family:Arial}
+    line, path{stroke:#7dd3fc;stroke-width:2px;marker-end:url(#arrow)}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#0369a1,#7dd3fc);display:flex;align-items:center;justify-content:center;font-weight:700;color:#021124">M</div>
-      <div>
-        <h1>Mindmap — Malware (samenvatting)</h1>
-        <p>Interactieve weergave van de belangrijkste onderdelen: definitie, symptomen, oorzaken, types, bescherming en acties bij infectie.</p>
-      </div>
-    </header>
+  <h1>Mindmap — Malware</h1>
+  <svg viewBox="0 0 1600 1200">
+    <defs>
+      <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L6,3 z" fill="#7dd3fc" />
+      </marker>
+    </defs>
 
-    <div class="card">
-      <div class="controls">
-        <button class="btn" id="expandAll">Alles uitklappen</button>
-        <button class="btn secondary" id="collapseAll">Alles inklappen</button>
-        <button class="btn" id="download">Download HTML</button>
-        <button class="btn secondary" id="print">Print</button>
-      </div>
+    <!-- Centrale node -->
+    <rect x="750" y="50" width="120" height="50" class="node" />
+    <text x="810" y="80" class="label">Malware</text>
 
-      <div class="mindmap">
-        <div class="tree">
-          <!-- Root node -->
-          <details open class="root">
-            <summary>
-              <div class="node-title">
-                <span class="title">Malware</span>
-                <span class="subtitle">Malicious software — kwaadaardige of schadelijke software</span>
-              </div>
-            </summary>
+    <!-- Symptomen -->
+    <rect x="250" y="200" width="150" height="40" class="node" />
+    <text x="325" y="225" class="label">Symptomen</text>
+    <line x1="810" y1="100" x2="325" y2="200" />
+    
+    <rect x="80" y="300" width="220" height="35" class="node" />
+    <text x="190" y="322" class="label">Traag systeem / internet</text>
+    <line x1="325" y1="240" x2="190" y2="300" />
+    <rect x="80" y="360" width="220" height="35" class="node" />
+    <text x="190" y="382" class="label">Bestanden verdwenen / vergrendeld</text>
+    <line x1="325" y1="240" x2="190" y2="360" />
+    <rect x="80" y="420" width="220" height="35" class="node" />
+    <text x="190" y="442" class="label">Gestolen gegevens</text>
+    <line x1="325" y1="240" x2="190" y2="420" />
+    <rect x="80" y="480" width="220" height="35" class="node" />
+    <text x="190" y="502" class="label">Pop-ups / reclame / toolbars</text>
+    <line x1="325" y1="240" x2="190" y2="480" />
 
-            <!-- Definition -->
-            <details>
-              <summary>
-                <div class="node-title">
-                  <span class="title">Definitie</span>
-                  <span class="subtitle">Verzamelnaam voor virussen, wormen, trojans, adware, spyware, enz.</span>
-                </div>
-              </summary>
-              <div style="padding:8px 14px;color:var(--muted);font-size:14px;line-height:1.5">
-                Malicious software: programma's die schade toebrengen, gegevens stelen, reclame tonen of systemen vergrendelen.
-              </div>
-            </details>
+    <!-- Oorzaken -->
+    <rect x="650" y="200" width="150" height="40" class="node" />
+    <text x="725" y="225" class="label">Oorzaken</text>
+    <line x1="810" y1="100" x2="725" y2="200" />
+    
+    <rect x="580" y="300" width="290" height="35" class="node" />
+    <text x="725" y="322" class="label">Onvoorzichtig gebruik (downloads, links)</text>
+    <line x1="725" y1="240" x2="725" y2="300" />
+    <rect x="580" y="360" width="290" height="35" class="node" />
+    <text x="725" y="382" class="label">Besmette USB of netwerk</text>
+    <line x1="725" y1="240" x2="725" y2="360" />
+    <rect x="580" y="420" width="290" height="35" class="node" />
+    <text x="725" y="442" class="label">Onveilige / verouderde software</text>
+    <line x1="725" y1="240" x2="725" y2="420" />
+    <rect x="580" y="480" width="290" height="35" class="node" />
+    <text x="725" y="502" class="label">Gratis software met adware</text>
+    <line x1="725" y1="240" x2="725" y2="480" />
 
-            <!-- Symptomen -->
-            <details>
-              <summary>
-                <div class="node-title">
-                  <span class="title">Symptomen</span>
-                  <span class="subtitle">Hoe herken je mogelijk een infectie?</span>
-                </div>
-              </summary>
-              <details>
-                <summary><span class="title">Prestaties & bereikbaarheid</span></summary>
-                <div style="padding:8px 14px;color:var(--muted)">
-                  computer werkt traag / niet normaal, internet traag of onstabiel, hoge CPU/GPU gebruik (cryptojacking).
-                </div>
-              </details>
-              <details>
-                <summary><span class="title">Bestanden & toegang</span></summary>
-                <div style="padding:8px 14px;color:var(--muted)">
-                  bestanden verdwenen of verwijderd, computer volledig vergrendeld (ransomware), gestolen logingegevens.
-                </div>
-              </details>
-              <details>
-                <summary><span class="title">Reclame & ongewone wijzigingen</span></summary>
-                <div style="padding:8px 14px;color:var(--muted)">
-                  veel pop-ups, toolbars in browser, homepage verandert, reclame ook op normale websites.
-                </div>
-              </details>
-            </details>
+    <!-- Soorten -->
+    <rect x="1150" y="200" width="180" height="40" class="node" />
+    <text x="1240" y="225" class="label">Soorten malware</text>
+    <line x1="810" y1="100" x2="1240" y2="200" />
 
-            <!-- Oorzaken -->
-            <details>
-              <summary>
-                <div class="node-title"><span class="title">Oorzaken</span><span class="subtitle">Hoe komt malware binnen?</span></div>
-              </summary>
+    <rect x="1080" y="280" width="120" height="35" class="node" /><text x="1140" y="302" class="label">Virus</text>
+    <line x1="1240" y1="240" x2="1140" y2="280" />
+    <rect x="1080" y="330" width="120" height="35" class="node" /><text x="1140" y="352" class="label">Worm</text>
+    <line x1="1240" y1="240" x2="1140" y2="330" />
+    <rect x="1080" y="380" width="120" height="35" class="node" /><text x="1140" y="402" class="label">Trojaans paard</text>
+    <line x1="1240" y1="240" x2="1140" y2="380" />
+    <rect x="1080" y="430" width="120" height="35" class="node" /><text x="1140" y="452" class="label">Spyware</text>
+    <line x1="1240" y1="240" x2="1140" y2="430" />
+    <rect x="1080" y="480" width="120" height="35" class="node" /><text x="1140" y="502" class="label">Adware</text>
+    <line x1="1240" y1="240" x2="1140" y2="480" />
+    <rect x="1280" y="280" width="120" height="35" class="node" /><text x="1340" y="302" class="label">Spam</text>
+    <line x1="1240" y1="240" x2="1340" y2="280" />
+    <rect x="1280" y="330" width="120" height="35" class="node" /><text x="1340" y="352" class="label">Hoax</text>
+    <line x1="1240" y1="240" x2="1340" y2="330" />
+    <rect x="1280" y="380" width="120" height="35" class="node" /><text x="1340" y="402" class="label">Scareware</text>
+    <line x1="1240" y1="240" x2="1340" y2="380" />
+    <rect x="1280" y="430" width="120" height="35" class="node" /><text x="1340" y="452" class="label">Ransomware</text>
+    <line x1="1240" y1="240" x2="1340" y2="430" />
+    <rect x="1280" y="480" width="120" height="35" class="node" /><text x="1340" y="502" class="label">Cryptojacking</text>
+    <line x1="1240" y1="240" x2="1340" y2="480" />
 
-              <details><summary>Onvoorzichtig gedrag</summary>
-                <div style="padding:8px 14px;color:var(--muted)">illegale downloads (mp3, cracks, torrents), klikken op misleidende reclame, verdachte links in mails/berichten.</div>
-              </details>
+    <!-- Smartphones -->
+    <rect x="250" y="650" width="180" height="40" class="node" />
+    <text x="340" y="675" class="label">Smartphones & tablets</text>
+    <line x1="810" y1="100" x2="340" y2="650" />
 
-              <details><summary>Besmette opslagmedia & netwerken</summary>
-                <div style="padding:8px 14px;color:var(--muted)">USB-sticks, gedeelde (wifi)netwerken met besmette apparaten.</div>
-              </details>
+    <!-- Bescherming -->
+    <rect x="650" y="650" width="180" height="40" class="node" />
+    <text x="740" y="675" class="label">Bescherming</text>
+    <line x1="810" y1="100" x2="740" y2="650" />
 
-              <details><summary>Onveilige / verouderde software</summary>
-                <div style="padding:8px 14px;color:var(--muted)">lekken in programma's / OS: houd software up-to-date.</div>
-              </details>
+    <rect x="600" y="720" width="280" height="35" class="node" /><text x="740" y="742" class="label">Antivirus & firewall</text>
+    <line x1="740" y1="690" x2="740" y2="720" />
+    <rect x="600" y="770" width="280" height="35" class="node" /><text x="740" y="792" class="label">Software up-to-date</text>
+    <line x1="740" y1="690" x2="740" y2="770" />
+    <rect x="600" y="820" width="280" height="35" class="node" /><text x="740" y="842" class="label">Alleen officiële downloads</text>
+    <line x1="740" y1="690" x2="740" y2="820" />
+    <rect x="600" y="870" width="280" height="35" class="node" /><text x="740" y="892" class="label">Back-ups maken</text>
+    <line x1="740" y1="690" x2="740" y2="870" />
+    <rect x="600" y="920" width="280" height="35" class="node" /><text x="740" y="942" class="label">Sterke wachtwoorden & 2FA</text>
+    <line x1="740" y1="690" x2="740" y2="920" />
+    <rect x="600" y="970" width="280" height="35" class="node" /><text x="740" y="992" class="label">Voorzichtig met mails & wifi</text>
+    <line x1="740" y1="690" x2="740" y2="970" />
 
-              <details><summary>Gratis software met bijgeleverde adware</summary>
-                <div style="padding:8px 14px;color:var(--muted)">sommige gratis apps installeren toolbars, adware of spyware zonder dat je het opmerkt.</div>
-              </details>
+    <!-- Slachtoffer -->
+    <rect x="1150" y="650" width="180" height="40" class="node" />
+    <text x="1240" y="675" class="label">Slachtoffer?</text>
+    <line x1="810" y1="100" x2="1240" y2="650" />
 
-            </details>
-
-            <!-- Types -->
-            <details>
-              <summary>
-                <div class="node-title"><span class="title">Soorten malware</span><span class="subtitle">Belangrijkste categorieën</span></div>
-              </summary>
-
-              <details><summary>Virus</summary>
-                <div style="padding:8px 14px;color:var(--muted)">klein programma dat zich in bestanden nestelt (.exe), beschadigt of verwijdert bestanden; vaak via bijlagen of downloads.</div>
-              </details>
-
-              <details><summary>Worm</summary>
-                <div style="padding:8px 14px;color:var(--muted)">kan zichzelf vermenigvuldigen en over netwerken verspreiden zonder gebruikersinteractie; vertraagt netwerken en beschadigt bestanden.</div>
-              </details>
-
-              <details><summary>Trojaans paard</summary>
-                <div style="padding:8px 14px;color:var(--muted)">verborgen functie in ogenschijnlijk onschuldig programma; geeft aanvaller toegang tot systeem—firewall en voorzichtig downloaden helpen.</div>
-              </details>
-
-              <details><summary>Spyware</summary>
-                <div style="padding:8px 14px;color:var(--muted)">spionagesoftware die surfgedrag en data verzamelt; vaak doorverkocht voor advertenties of spam.</div>
-              </details>
-
-              <details><summary>Adware</summary>
-                <div style="padding:8px 14px;color:var(--muted)">storende advertenties die vaak meekomt met gratis software; niet altijd schadelijk maar hinderlijk.</div>
-              </details>
-
-              <details><summary>Spam</summary>
-                <div style="padding:8px 14px;color:var(--muted)">ongevraagde e-mails; veel providers filteren dit maar voorzichtigheid blijft nodig.</div>
-              </details>
-
-              <details><summary>Hoax</summary>
-                <div style="padding:8px 14px;color:var(--muted)">valse berichten of kettingbrieven die misleiden of onnodige acties aanmoedigen.</div>
-              </details>
-
-              <details><summary>Scareware</summary>
-                <div style="padding:8px 14px;color:var(--muted)">nepwaarschuwingen die je opschrikken om (onnodig) te betalen of software te installeren.</div>
-              </details>
-
-              <details><summary>Ransomware</summary>
-                <div style="padding:8px 14px;color:var(--muted)">blokkeert of versleutelt bestanden en vraagt losgeld; betalen helpt vaak niet—schakel experts in.</div>
-              </details>
-
-              <details><summary>Cryptojacking</summary>
-                <div style="padding:8px 14px;color:var(--muted)">illegaal gebruiken van je rekenkracht om cryptomunten te minen; herkenbaar aan hoge load en warme batterijen.</div>
-              </details>
-
-            </details>
-
-            <!-- Mobiele apparaten -->
-            <details>
-              <summary><div class="node-title"><span class="title">Smartphones & tablets</span><span class="subtitle">ook kwetsbaar</span></div></summary>
-              <div style="padding:8px 14px;color:var(--muted)">smartphones zijn kleine computers — download alleen uit officiële appstores (Play Store, App Store); wees voorzichtig met links in chat-apps.</div>
-            </details>
-
-            <!-- Bescherming -->
-            <details>
-              <summary><div class="node-title"><span class="title">Bescherming — 13 tips</span><span class="subtitle">praktische maatregelen</span></div></summary>
-
-              <details><summary>1. Antivirus & automatische updates</summary>
-                <div style="padding:8px 14px;color:var(--muted)">bijv. Windows Defender, Avast, AVG, BitDefender, McAfee, Norton.</div>
-              </details>
-              <details><summary>2. Firewall</summary>
-                <div style="padding:8px 14px;color:var(--muted)">zorg dat de firewall actief is (Windows heeft ingebouwde firewall).</div>
-              </details>
-              <details><summary>3. Houd software up-to-date</summary>
-                <div style="padding:8px 14px;color:var(--muted)">OS en applicaties steeds updaten.</div>
-              </details>
-              <details><summary>4. Download alleen betrouwbare software</summary>
-                <div style="padding:8px 14px;color:var(--muted)">van officiële sites en appstores; let op extra bundels bij installatie.</div>
-              </details>
-              <details><summary>5. Maak regelmatig back-ups</summary>
-                <div style="padding:8px 14px;color:var(--muted)">externe harde schijf of cloud back-ups.</div>
-              </details>
-              <details><summary>6. Herken valse berichten</summary>
-                <div style="padding:8px 14px;color:var(--muted)">wees kritisch bij mails en links.</div>
-              </details>
-              <details><summary>7. Sterke wachtwoorden & 2FA</summary>
-                <div style="padding:8px 14px;color:var(--muted)">verschillende wachtwoorden en tweestapsverificatie instellen.</div>
-              </details>
-              <details><summary>8. Wees voorzichtig met publieke wifi</summary>
-                <div style="padding:8px 14px;color:var(--muted)">gebruik geen onbeveiligde netwerken zonder VPN.</div>
-              </details>
-              <details><summary>9. Gebruik tijdelijk e-mailadres voor onbetrouwbare registratie</summary>
-                <div style="padding:8px 14px;color:var(--muted)">bv. 10minutemail of temp-mail voor niet-essentiële aanmeldingen.</div>
-              </details>
-              <details><summary>10. Niet zomaar toegang geven via telefoon</summary>
-                <div style="padding:8px 14px;color:var(--muted)">neem geen instructies aan van ongevraagde 'technische support' bellers.</div>
-              </details>
-              <details><summary>11. Gebruik gezond verstand</summary>
-                <div style="padding:8px 14px;color:var(--muted)">klik niet blindelings, vermijd illegale downloads.
-                </div>
-              </details>
-              <details><summary>12. Controleer installatiedialoog</summary>
-                <div style="padding:8px 14px;color:var(--muted)">voorkom dat extra ongewenste software wordt meegeïnstalleerd.</div>
-              </details>
-              <details><summary>13. Educatie & bewustzijn</summary>
-                <div style="padding:8px 14px;color:var(--muted)">leer valse mails/hoaxes herkennen en deel kennis met anderen.</div>
-              </details>
-
-            </details>
-
-            <!-- Als slachtoffer -->
-            <details>
-              <summary><div class="node-title"><span class="title">Ben je slachtoffer?</span><span class="subtitle">Acties</span></div></summary>
-
-              <details><summary>Computer reageert raar</summary>
-                <div style="padding:8px 14px;color:var(--muted)">scan met virusscanner; start in veilige modus; ga naar herstelpunt of herinstalleer OS als laatste optie (bewaar eerst belangrijke bestanden extern).</div>
-              </details>
-
-              <details><summary>Persoonlijke gegevens gelekt</summary>
-                <div style="padding:8px 14px;color:var(--muted)">verander wachtwoorden direct; contacteer bank & Cardstop bij misbruik; doe aangifte indien nodig; waarschuw contacten bij verspreiding van nepberichten.</div>
-              </details>
-
-              <details><summary>Ransomware</summary>
-                <div style="padding:8px 14px;color:var(--muted)">betaal nooit losgeld; schakel IT-expert in; raadpleeg No More Ransom en hulpdiensten.</div>
-              </details>
-
-            </details>
-
-          </details>
-        </div>
-      </div>
-
-      <footer>Bron: samengevat uit door jou aangeleverde tekst — volledig aangepast naar een interactieve mindmap.</footer>
-    </div>
-  </div>
-
-  <script>
-    // Expand / collapse helpers
-    const expandAllBtn = document.getElementById('expandAll');
-    const collapseAllBtn = document.getElementById('collapseAll');
-    const downloadBtn = document.getElementById('download');
-    const printBtn = document.getElementById('print');
-
-    function setAll(open){
-      document.querySelectorAll('.tree details').forEach(d=>{ d.open = open; });
-    }
-    expandAllBtn.addEventListener('click',()=>setAll(true));
-    collapseAllBtn.addEventListener('click',()=>{ setAll(false); document.querySelector('.root').open = true; });
-
-    // Download current HTML file
-    downloadBtn.addEventListener('click', ()=>{
-      const doc = '<!doctype html>' + document.documentElement.outerHTML;
-      const blob = new Blob([doc], {type: 'text/html'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'malware-mindmap.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    });
-
-    printBtn.addEventListener('click', ()=> window.print());
-
-    // Make details clickable by clicking the whole summary
-    document.querySelectorAll('summary').forEach(s=>{
-      s.addEventListener('click', (e)=>{
-        // default toggle behavior is fine; stop propagation to avoid nested toggles
-      });
-    });
-  </script>
+    <rect x="1100" y="720" width="280" height="35" class="node" /><text x="1240" y="742" class="label">Virusscanner / herstel / herinstallatie</text>
+    <line x1="1240" y1="690" x2="1240" y2="720" />
+    <rect x="1100" y="770" width="280" height="35" class="node" /><text x="1240" y="792" class="label">Wachtwoorden wijzigen</text>
+    <line x1="1240" y1="690" x2="1240" y2="770" />
+    <rect x="1100" y="820" width="280" height="35" class="node" /><text x="1240" y="842" class="label">Bank & politie contacteren</text>
+    <line x1="1240" y1="690" x2="1240" y2="820" />
+    <rect x="1100" y="870" width="280" height="35" class="node" /><text x="1240" y="892" class="label">Nooit losgeld betalen</text>
+    <line x1="1240" y1="690" x2="1240" y2="870" />
+  </svg>
 </body>
 </html>
