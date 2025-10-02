@@ -3,168 +3,264 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mindmap Malware Informatica</title>
+  <title>Mindmap Malware Informatica - Printklaar</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f8fafc;
-      color: #1e293b;
+    :root{
+      --bg:#f7fafc;
+      --accent:#0b6cff;
+      --muted:#94a3b8;
+      --card:#ffffff;
+      --text:#0f1724;
     }
-    h1 {
-      text-align: center;
-      color: #2563eb;
-      margin: 20px 0;
-      font-size: 28px;
-    }
-    #printBtn {
-      display: block;
-      margin: 0 auto 15px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      background: #2563eb;
-      color: #fff;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    #printBtn:hover {
-      background: #1e40af;
-    }
-    svg {
-      width: 100%;
-      height: calc(100vh - 100px);
-    }
-    .node rect {
-      fill: #ffffff;
-      stroke: #2563eb;
-      stroke-width: 2px;
-      rx: 12;
-      ry: 12;
-      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15));
-    }
-    .label {
-      fill: #1e293b;
-      font-size: 14px;
-      text-anchor: middle;
-      font-family: Arial, sans-serif;
-      pointer-events: none;
-    }
-    .link {
-      fill: none;
-      stroke: #94a3b8;
-      stroke-width: 2px;
-      marker-end: url(#arrow);
-    }
+    html,body{height:100%;margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px}
+    h1{margin:0;font-size:20px;color:var(--accent)}
+    #printBtn{padding:9px 14px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+    #canvas{width:100%;height:calc(100% - 72px);overflow:auto}
+    svg{width:1400px;height:800px;background:transparent}
+    .link{fill:none;stroke:var(--muted);stroke-width:2;marker-end:url(#arrow)}
+    .node rect{fill:var(--card);stroke:var(--accent);stroke-width:1.8;rx:10;ry:10;filter:drop-shadow(0 6px 18px rgba(11,108,255,0.08))}
+    .node .title{font-weight:700;font-size:13px;fill:var(--text);text-anchor:start;font-family:Inter,Arial}
+    .node .body{font-size:12px;fill:var(--text);font-family:Inter,Arial}
+    @media print{#printBtn,header{display:none}svg{width:1000px;height:1200px}}
   </style>
 </head>
 <body>
-  <h1>Mindmap Malware Informatica</h1>
-  <button id="printBtn" onclick="window.print()">Print</button>
-  <svg></svg>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <header>
+    <h1>Mindmap — Malware Informatica (toetsready)</h1>
+    <button id="printBtn" onclick="window.print()">Print</button>
+  </header>
+  <div id="canvas">
+    <svg id="svgRoot" viewBox="0 0 1400 800" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+
   <script>
     const data = {
-      name: "Malware",
-      children: [
+      root: "Malware",
+      main: [
         {
-          name: "Symptomen",
-          children: [
-            { name: "Traag systeem / internet" },
-            { name: "Bestanden verdwenen / vergrendeld" },
-            { name: "Gestolen gegevens" },
-            { name: "Pop-ups / reclame / toolbars" }
+          title: "Wat is malware?",
+          items: [
+            "Kwaadaardige software (Malicious software).",
+            "Bevat o.a. virussen, wormen, trojaanse paarden, spyware, adware, ransomware."
           ]
         },
         {
-          name: "Oorzaken",
-          children: [
-            { name: "Onvoorzichtig gebruik (downloads, links)" },
-            { name: "Besmette USB of netwerk" },
-            { name: "Onveilige / verouderde software" },
-            { name: "Gratis software met adware" }
+          title: "Symptomen",
+          items: [
+            "Traag systeem of internet.",
+            "Bestanden verdwenen of vergrendeld.",
+            "Gestolen persoonlijke gegevens (logins, e-mail).",
+            "Pop-ups, toolbars, veel reclame.",
+            "Homepage/zoekbalk verandert."
           ]
         },
         {
-          name: "Soorten malware",
-          children: [
-            { name: "Virus" }, { name: "Worm" }, { name: "Trojaans paard" },
-            { name: "Spyware" }, { name: "Adware" }, { name: "Spam" },
-            { name: "Hoax" }, { name: "Scareware" }, { name: "Ransomware" },
-            { name: "Cryptojacking" }
+          title: "Oorzaken",
+          items: [
+            "Onvoorzichtig downloaden / verdachte links.",
+            "Illegale downloads, cracks, torrents.",
+            "Besmette USB / opslagmedia.",
+            "Onveilige of verouderde software (niet geüpdatet).",
+            "Openbare of onbeveiligde netwerken.",
+            "Gratis apps met verborgen adware/spyware."
           ]
         },
         {
-          name: "Smartphones & tablets"
-        },
-        {
-          name: "Bescherming",
-          children: [
-            { name: "Antivirus & firewall" },
-            { name: "Software up-to-date" },
-            { name: "Alleen officiële downloads" },
-            { name: "Back-ups maken" },
-            { name: "Sterke wachtwoorden & 2FA" },
-            { name: "Voorzichtig met mails & wifi" }
+          title: "Soorten malware",
+          items: [
+            "Virus — nestelt zich in bestanden.",
+            "Worm — zelfvermenigvuldigend, netwerkverspreiding.",
+            "Trojaans paard — verborgen toegangsfunctie.",
+            "Spyware — verzamelt gegevens.",
+            "Adware — opdringerige reclame/toolbars.",
+            "Spam — ongewenste mail.",
+            "Hoax — valse berichten/kettingbrieven.",
+            "Scareware — valse waarschuwingen voor betaling.",
+            "Ransomware — vergrendelt bestanden, vraagt losgeld.",
+            "Cryptojacking — gebruikt rekenkracht voor mining."
           ]
         },
         {
-          name: "Slachtoffer?",
-          children: [
-            { name: "Virusscanner / herstel / herinstallatie" },
-            { name: "Wachtwoorden wijzigen" },
-            { name: "Bank & politie contacteren" },
-            { name: "Nooit losgeld betalen" }
+          title: "Mobiele apparaten",
+          items: [
+            "Smartphones/tablets kunnen ook malware krijgen.",
+            "Download alleen uit Play Store / App Store.",
+            "Vermijd niet-officiële app-stores."
+          ]
+        },
+        {
+          title: "Bescherming (belangrijkste tips)",
+          items: [
+            "Installeer antivirus en activeer automatische updates.",
+            "Gebruik firewall; houd OS & programma's up-to-date.",
+            "Download alleen officiële bronnen; controleer installaties.",
+            "Maak regelmatig back-ups; bewaar extern.",
+            "Leer valse mails/berichten herkennen.",
+            "Gebruik sterke wachtwoorden en 2FA.",
+            "Beveilig thuisnetwerk; vermijd openbare wifi voor gevoelige taken.",
+            "Wees kritisch: klik niet zomaar; vermijd illegale sites."
+          ]
+        },
+        {
+          title: "Als slachtoffer",
+          items: [
+            "Scan met virusscanner; veilige modus / herstelpunt proberen.",
+            "Herstel of herinstallatie als laatste redmiddel (back-up eerst).",
+            "Wijzig direct wachtwoorden; waarschuw contacten.",
+            "Contacteer bank / Cardstop bij betalingsgegevens.",
+            "Doe aangifte bij politie bij financiële schade.",
+            "Betaal nooit losgeld; schakel IT-expert in."
           ]
         }
       ]
     };
 
-    const svg = d3.select("svg"),
-          width = window.innerWidth,
-          height = window.innerHeight - 100,
-          g = svg.append("g").attr("transform", "translate(50,50)");
+    const svg = document.getElementById("svgRoot");
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
 
-    svg.append("defs").append("marker")
-      .attr("id", "arrow")
-      .attr("markerWidth", 10)
-      .attr("markerHeight", 10)
-      .attr("refX", 8)
-      .attr("refY", 3)
-      .attr("orient", "auto")
-      .attr("markerUnits", "strokeWidth")
-      .append("path")
-      .attr("d", "M0,0 L0,6 L9,3 z")
-      .attr("fill", "#94a3b8");
+    const svgns = "http://www.w3.org/2000/svg";
 
-    const root = d3.hierarchy(data);
-    const treeLayout = d3.tree().size([height - 100, width - 300]);
-    treeLayout(root);
+    const defs = document.createElementNS(svgns, "defs");
+    const marker = document.createElementNS(svgns, "marker");
+    marker.setAttribute("id", "arrow");
+    marker.setAttribute("markerWidth", "9");
+    marker.setAttribute("markerHeight", "9");
+    marker.setAttribute("refX", "8");
+    marker.setAttribute("refY", "4.5");
+    marker.setAttribute("orient", "auto");
+    marker.setAttribute("markerUnits", "strokeWidth");
+    const path = document.createElementNS(svgns, "path");
+    path.setAttribute("d", "M0,0 L0,9 L9,4.5 z");
+    path.setAttribute("fill", getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || "#94a3b8");
+    marker.appendChild(path);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
 
-    g.selectAll(".link")
-      .data(root.links())
-      .enter().append("path")
-      .attr("class", "link")
-      .attr("d", d3.linkHorizontal()
-        .x(d => d.y)
-        .y(d => d.x));
+    const width = 1400;
+    const height = 800;
+    const leftMargin = 80;
+    const rightMargin = 60;
+    const topMargin = 60;
+    const bottomMargin = 40;
 
-    const node = g.selectAll(".node")
-      .data(root.descendants())
-      .enter().append("g")
-      .attr("class", "node")
-      .attr("transform", d => `translate(${d.y},${d.x})`);
+    const rootX = leftMargin + 20;
+    const rootY = height / 2;
 
-    node.append("rect")
-      .attr("x", d => -(d.data.name.length * 4))
-      .attr("y", -15)
-      .attr("width", d => d.data.name.length * 8)
-      .attr("height", 30);
+    const columnCount = data.main.length;
+    const availableWidth = width - leftMargin - rightMargin - 220;
+    const columnWidth = Math.max(280, Math.floor(availableWidth / columnCount));
 
-    node.append("text")
-      .attr("class", "label")
-      .text(d => d.data.name)
-      .attr("dy", 4);
+    const nodeW = 240;
+    const nodeH = 54;
+    const vGap = 14;
+
+    const columns = [];
+
+    for (let i = 0; i < columnCount; i++) {
+      const colX = leftMargin + 200 + i * (columnWidth);
+      const items = data.main[i].items;
+      const headerH = nodeH;
+      const childrenH = items.length * nodeH + Math.max(0, items.length - 1) * vGap;
+      const colHeight = headerH + 12 + childrenH;
+      columns.push({ colX, headerH, childrenH, colHeight, items, title: data.main[i].title });
+    }
+
+    const maxColHeight = Math.max(...columns.map(c => c.colHeight));
+    const startY = Math.max(topMargin, (height - maxColHeight) / 2);
+
+    function makeNode(x, y, w, h, titleLines, isHeader) {
+      const g = document.createElementNS(svgns, "g");
+      g.setAttribute("transform", `translate(${x},${y})`);
+      g.setAttribute("class", "node");
+      const rect = document.createElementNS(svgns, "rect");
+      rect.setAttribute("x", 0);
+      rect.setAttribute("y", 0);
+      rect.setAttribute("width", w);
+      rect.setAttribute("height", h);
+      rect.setAttribute("rx", 10);
+      rect.setAttribute("ry", 10);
+      g.appendChild(rect);
+
+      const fo = document.createElementNS(svgns, "foreignObject");
+      fo.setAttribute("x", 12);
+      fo.setAttribute("y", 8);
+      fo.setAttribute("width", w - 24);
+      fo.setAttribute("height", h - 16);
+      const div = document.createElement("div");
+      div.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+      div.style.font = isHeader ? "600 13px Inter, Arial" : "12px Inter, Arial";
+      div.style.color = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || "#0f1724";
+      div.style.lineHeight = "1.15";
+      div.style.wordWrap = "break-word";
+      div.style.textAlign = "left";
+      div.style.height = (h - 16) + "px";
+      div.style.overflow = "hidden";
+      div.innerHTML = titleLines.map(s => `<div>${escapeHtml(s)}</div>`).join("");
+      fo.appendChild(div);
+      g.appendChild(fo);
+      svg.appendChild(g);
+      return { g, x, y, w, h };
+    }
+
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    const rootNode = makeNode(rootX - 8, rootY - nodeH/2, 160, nodeH, [data.root], true);
+
+    const allNodes = [];
+    allNodes.push(rootNode);
+
+    columns.forEach((col, idx) => {
+      const colX = col.colX;
+      const headerY = startY + (maxColHeight - col.colHeight)/2;
+      const headerNode = makeNode(colX - nodeW/2, headerY, nodeW, nodeH, [col.title], true);
+      allNodes.push(headerNode);
+
+      col.items.forEach((it, j) => {
+        const childY = headerY + nodeH + 8 + j * (nodeH + vGap);
+        const childNode = makeNode(colX - nodeW/2, childY, nodeW, nodeH, splitToLines(it, 36), false);
+        allNodes.push(childNode);
+        const link1 = pathCurve(rootNode.x + rootNode.w, rootNode.y + rootNode.h/2, headerNode.x, headerNode.y + headerNode.h/2);
+        svg.appendChild(link1);
+        const link2 = pathCurve(headerNode.x + headerNode.w, headerNode.y + headerNode.h/2, childNode.x, childNode.y + childNode.h/2);
+        svg.appendChild(link2);
+      });
+
+      if (col.items.length === 0) {
+        const link1 = pathCurve(rootNode.x + rootNode.w, rootNode.y + rootNode.h/2, headerNode.x, headerNode.y + headerNode.h/2);
+        svg.appendChild(link1);
+      }
+    });
+
+    function pathCurve(sx, sy, tx, ty) {
+      const dx = Math.abs(tx - sx);
+      const cx1 = sx + dx * 0.35;
+      const cx2 = tx - dx * 0.35;
+      const d = `M ${sx} ${sy} C ${cx1} ${sy} ${cx2} ${ty} ${tx} ${ty}`;
+      const p = document.createElementNS(svgns, "path");
+      p.setAttribute("d", d);
+      p.setAttribute("class", "link");
+      p.setAttribute("stroke-linecap", "round");
+      p.setAttribute("fill", "none");
+      p.setAttribute("marker-end", "url(#arrow)");
+      return p;
+    }
+
+    function splitToLines(text, charsPerLine) {
+      const words = text.split(/\s+/);
+      const lines = [];
+      let cur = "";
+      words.forEach(w => {
+        if ((cur + " " + w).trim().length <= charsPerLine) {
+          cur = (cur + " " + w).trim();
+        } else {
+          if (cur) lines.push(cur);
+          cur = w;
+        }
+      });
+      if (cur) lines.push(cur);
+      return lines.slice(0,3);
+    }
   </script>
 </body>
 </html>
