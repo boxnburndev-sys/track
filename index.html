@@ -8,35 +8,51 @@
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #0f1724;
-      color: #e6eef8;
+      background: #f8fafc;
+      color: #1e293b;
     }
     h1 {
       text-align: center;
-      color: #7dd3fc;
+      color: #2563eb;
       margin: 20px 0;
+      font-size: 28px;
+    }
+    #printBtn {
+      display: block;
+      margin: 0 auto 15px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #printBtn:hover {
+      background: #1e40af;
     }
     svg {
       width: 100%;
-      height: 100vh;
+      height: calc(100vh - 100px);
     }
     .node rect {
-      fill: #0b1220;
-      stroke: #7dd3fc;
+      fill: #ffffff;
+      stroke: #2563eb;
       stroke-width: 2px;
       rx: 12;
       ry: 12;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15));
     }
     .label {
-      fill: #e6eef8;
+      fill: #1e293b;
       font-size: 14px;
       text-anchor: middle;
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       pointer-events: none;
     }
     .link {
       fill: none;
-      stroke: #7dd3fc;
+      stroke: #94a3b8;
       stroke-width: 2px;
       marker-end: url(#arrow);
     }
@@ -44,8 +60,8 @@
 </head>
 <body>
   <h1>Mindmap Malware Informatica</h1>
+  <button id="printBtn" onclick="window.print()">Print</button>
   <svg></svg>
-
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script>
     const data = {
@@ -106,52 +122,38 @@
 
     const svg = d3.select("svg"),
           width = window.innerWidth,
-          height = window.innerHeight;
+          height = window.innerHeight - 100,
+          g = svg.append("g").attr("transform", "translate(50,50)");
 
-    // Setup arrow marker
     svg.append("defs").append("marker")
       .attr("id", "arrow")
       .attr("markerWidth", 10)
       .attr("markerHeight", 10)
-      .attr("refX", 6)
+      .attr("refX", 8)
       .attr("refY", 3)
       .attr("orient", "auto")
       .attr("markerUnits", "strokeWidth")
       .append("path")
-      .attr("d", "M0,0 L0,6 L6,3 z")
-      .attr("fill", "#7dd3fc");
+      .attr("d", "M0,0 L0,6 L9,3 z")
+      .attr("fill", "#94a3b8");
 
-    // Create radial tree layout
     const root = d3.hierarchy(data);
-    const treeLayout = d3.tree().size([2 * Math.PI, Math.min(width, height) / 2 - 100]);
+    const treeLayout = d3.tree().size([height - 100, width - 300]);
     treeLayout(root);
 
-    // Convert polar coords to cartesian
-    function project(x, y) {
-      const angle = x - Math.PI / 2;
-      return [y * Math.cos(angle) + width / 2, y * Math.sin(angle) + height / 2];
-    }
-
-    // Draw links
-    svg.selectAll(".link")
+    g.selectAll(".link")
       .data(root.links())
       .enter().append("path")
       .attr("class", "link")
-      .attr("d", d => {
-        const [sx, sy] = project(d.source.x, d.source.y);
-        const [tx, ty] = project(d.target.x, d.target.y);
-        return `M${sx},${sy} L${tx},${ty}`;
-      });
+      .attr("d", d3.linkHorizontal()
+        .x(d => d.y)
+        .y(d => d.x));
 
-    // Draw nodes
-    const node = svg.selectAll(".node")
+    const node = g.selectAll(".node")
       .data(root.descendants())
       .enter().append("g")
       .attr("class", "node")
-      .attr("transform", d => {
-        const [x, y] = project(d.x, d.y);
-        return `translate(${x},${y})`;
-      });
+      .attr("transform", d => `translate(${d.y},${d.x})`);
 
     node.append("rect")
       .attr("x", d => -(d.data.name.length * 4))
@@ -161,7 +163,8 @@
 
     node.append("text")
       .attr("class", "label")
-      .text(d => d.data.name);
+      .text(d => d.data.name)
+      .attr("dy", 4);
   </script>
 </body>
 </html>
