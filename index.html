@@ -1,237 +1,175 @@
 <!doctype html>
 <html lang="nl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mindmap Malware Informatica - Geen overlap</title>
-  <style>
-    :root{
-      --bg:#f7fafc;
-      --accent:#0b6cff;
-      --muted:#94a3b8;
-      --card:#ffffff;
-      --text:#0f1724;
-    }
-    html,body{height:100%;margin:0;font-family:Inter, Arial, Helvetica, sans-serif;background:var(--bg);color:var(--text)}
-    header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px}
-    h1{margin:0;font-size:18px;color:var(--accent)}
-    #printBtn{padding:8px 12px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
-    #canvas{width:100%;height:calc(100% - 64px);overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding-bottom:24px}
-    svg{background:transparent}
-    .link{fill:none;stroke:var(--muted);stroke-width:2;marker-end:url(#arrow);stroke-linecap:round}
-    .node rect{fill:var(--card);stroke:var(--accent);stroke-width:1.6;rx:10;ry:10}
-    .node .text{font-size:13px;fill:var(--text);font-family:Inter,Arial;text-anchor:start}
-    @media print{#printBtn,header{display:none}}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Malware Mindmap - Radial Layout</title>
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --accent: #0b6cff;
+    --node-bg: #ffffff;
+    --node-text: #0f1724;
+    --link: #94a3b8;
+  }
+  html, body {
+    margin:0; padding:0; height:100%; font-family:Inter,Arial,sans-serif;
+    background: var(--bg); color: var(--node-text);
+    overflow: hidden;
+  }
+  header {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 24px; background: var(--bg);
+  }
+  h1 { margin:0; font-size:18px; color: var(--accent); }
+  button { padding:8px 14px; border-radius:8px; border:none; background: var(--accent); color:#fff; font-weight:600; cursor:pointer;}
+  svg { width:100%; height:calc(100% - 48px); }
+  .node rect {
+    fill: var(--node-bg); stroke: var(--accent); stroke-width:2; rx:10; ry:10;
+  }
+  .node text {
+    font-size:12px; text-anchor:middle; alignment-baseline:middle; fill:var(--node-text);
+    font-family:Inter,Arial,sans-serif;
+  }
+  path.link { stroke: var(--link); stroke-width:2; fill:none; marker-end:url(#arrow); }
+  @media print { header, button { display:none } }
+</style>
 </head>
 <body>
-  <header>
-    <h1>Mindmap — Malware Informatica (geen overlap)</h1>
-    <button id="printBtn" onclick="window.print()">Print</button>
-  </header>
-  <div id="canvas"><svg id="svgRoot" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<header>
+  <h1>Malware Mindmap — Radial Layout</h1>
+  <button onclick="window.print()">Print</button>
+</header>
+<svg id="svgRoot">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,8 L8,4 Z" fill="#94a3b8" />
+    </marker>
+  </defs>
+</svg>
 
-  <script>
-    const content = [
-      { title: "Wat is malware?", items:[
-        "Kwaadaardige software (Malicious software).",
-        "Bevat o.a. virussen, wormen, trojaanse paarden, spyware, adware, ransomware."
-      ]},
-      { title: "Symptomen", items:[
-        "Traag systeem of internet.",
-        "Bestanden verdwenen of vergrendeld.",
-        "Gestolen persoonlijke gegevens (logins, e-mail).",
-        "Pop-ups, toolbars, veel reclame.",
-        "Homepage of zoekbalk verandert."
-      ]},
-      { title: "Oorzaken", items:[
-        "Onvoorzichtig downloaden / verdachte links.",
-        "Illegale downloads, cracks, torrents.",
-        "Besmette USB / opslagmedia.",
-        "Onveilige of verouderde software (niet geüpdatet).",
-        "Openbare of onbeveiligde netwerken.",
-        "Gratis apps met verborgen adware/spyware."
-      ]},
-      { title: "Soorten malware", items:[
-        "Virus — nestelt zich in bestanden.",
-        "Worm — vermenigvuldigt zich, verspreidt via netwerk.",
-        "Trojaans paard — verborgen functie die toegang geeft.",
-        "Spyware — verzamelt gegevens.",
-        "Adware — opdringerige reclame/toolbars.",
-        "Spam — ongewenste mail.",
-        "Hoax — valse berichten / kettingbrieven.",
-        "Scareware — valse waarschuwingen voor betaling.",
-        "Ransomware — vergrendelt bestanden, vraagt losgeld.",
-        "Cryptojacking — gebruikt rekenkracht voor mining."
-      ]},
-      { title: "Mobiele apparaten", items:[
-        "Smartphones/tablets kunnen ook geïnfecteerd raken.",
-        "Download alleen uit Play Store / App Store.",
-        "Vermijd niet-officiële app-stores."
-      ]},
-      { title: "Bescherming", items:[
-        "Installeer antivirus en activeer automatische updates.",
-        "Gebruik firewall; houd OS & programma's up-to-date.",
-        "Download alleen officiële bronnen; controleer installaties.",
-        "Maak regelmatig back-ups; bewaar extern.",
-        "Leer valse mails/berichten herkennen.",
-        "Gebruik sterke wachtwoorden en 2FA.",
-        "Beveilig thuisnetwerk; vermijd openbare wifi voor gevoelige taken.",
-        "Wees kritisch: klik niet zomaar; vermijd illegale sites."
-      ]},
-      { title: "Als slachtoffer", items:[
-        "Scan met virusscanner; veilige modus / herstelpunt proberen.",
-        "Herstel of herinstallatie als laatste redmiddel (backup eerst).",
-        "Wijzig direct wachtwoorden; waarschuw contacten.",
-        "Contacteer bank / Cardstop bij betalingsgegevens.",
-        "Doe aangifte bij politie bij financiële schade.",
-        "Betaal nooit losgeld; schakel IT-expert in."
-      ]}
-    ];
+<script>
+const svg = document.getElementById("svgRoot");
+const svgns = "http://www.w3.org/2000/svg";
 
-    const svg = document.getElementById('svgRoot');
-    while (svg.firstChild) svg.removeChild(svg.firstChild);
-    const svgns = "http://www.w3.org/2000/svg";
+const data = {
+  root: "Malware",
+  branches: [
+    {title:"Wat is malware?", items:[
+      "Kwaadaardige software (Malicious software).",
+      "Bevat virussen, wormen, trojaanse paarden, spyware, adware, ransomware."
+    ]},
+    {title:"Symptomen", items:[
+      "Traag systeem/internet",
+      "Bestanden verdwenen/vergrendeld",
+      "Gestolen gegevens (logins, e-mail)",
+      "Pop-ups, toolbars, reclame",
+      "Homepage verandert"
+    ]},
+    {title:"Oorzaken", items:[
+      "Onvoorzichtig gebruik (links/downloads)",
+      "Besmette USB / netwerk",
+      "Onveilige/verouderde software",
+      "Gratis software met adware"
+    ]},
+    {title:"Soorten malware", items:[
+      "Virus, Worm, Trojaans paard",
+      "Spyware, Adware, Spam, Hoax",
+      "Scareware, Ransomware, Cryptojacking"
+    ]},
+    {title:"Mobiele apparaten", items:[
+      "Smartphones/tablets kwetsbaar",
+      "Gebruik alleen officiële app-stores"
+    ]},
+    {title:"Bescherming", items:[
+      "Antivirus & firewall",
+      "Up-to-date software",
+      "Officiële downloads",
+      "Back-ups",
+      "Sterke wachtwoorden & 2FA",
+      "Wees kritisch online"
+    ]},
+    {title:"Als slachtoffer", items:[
+      "Virusscanner / herstelpunt",
+      "Wachtwoorden wijzigen",
+      "Bank/autoriteiten contacteren",
+      "Nooit losgeld betalen"
+    ]}
+  ]
+};
 
-    const markerDefs = document.createElementNS(svgns, 'defs');
-    const marker = document.createElementNS(svgns, 'marker');
-    marker.setAttribute('id','arrow');
-    marker.setAttribute('markerWidth','9');
-    marker.setAttribute('markerHeight','9');
-    marker.setAttribute('refX','8');
-    marker.setAttribute('refY','4.5');
-    marker.setAttribute('orient','auto');
-    marker.setAttribute('markerUnits','strokeWidth');
-    const markerPath = document.createElementNS(svgns, 'path');
-    markerPath.setAttribute('d','M0,0 L0,9 L9,4.5 z');
-    markerPath.setAttribute('fill','#94a3b8');
-    marker.appendChild(markerPath);
-    markerDefs.appendChild(marker);
-    svg.appendChild(markerDefs);
+const centerX = 700;
+const centerY = 400;
+const rootNodeW = 140;
+const rootNodeH = 50;
+const radiusStep = 140;
+const nodeW = 160;
+const nodeH = 40;
 
-    const nodeW = 300;
-    const nodeH = 60;
-    const vGap = 14;
-    const hGap = 60;
-    const rootW = 180;
-    const margin = {left:40,right:40,top:40,bottom:40};
+// Draw root node
+const rootGroup = createNode(centerX, centerY, rootNodeW, rootNodeH, data.root, true);
 
-    const columns = content.length;
-    const columnXStart = margin.left + rootW + 120;
-    const columnWidth = nodeW + hGap;
-    const svgWidth = Math.max(1200, columnXStart + columns * columnWidth + margin.right);
-    const columnHeights = [];
+// Draw radial branches
+const totalBranches = data.branches.length;
+const angleStep = 360 / totalBranches;
 
-    for (let i=0;i<columns;i++){
-      const items = content[i].items.length;
-      const h = nodeH + 8 + items * nodeH + Math.max(0, items-1)*vGap;
-      columnHeights.push(h);
-    }
+data.branches.forEach((branch,i)=>{
+  const angle = i * angleStep;
+  const rad = angle * Math.PI / 180;
+  const branchX = centerX + Math.cos(rad) * radiusStep;
+  const branchY = centerY + Math.sin(rad) * radiusStep;
 
-    const svgHeight = Math.max(700, Math.max(...columnHeights) + margin.top + margin.bottom + 40);
-    svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
-    svg.setAttribute('width', svgWidth);
-    svg.setAttribute('height', svgHeight);
+  const branchNode = createNode(branchX, branchY, nodeW, nodeH, branch.title, true);
+  createLink(rootGroup, branchNode);
 
-    const rootX = margin.left;
-    const rootY = svgHeight / 2 - nodeH/2;
+  // Draw items on sub-branches
+  const itemsCount = branch.items.length;
+  const itemRadius = radiusStep + 100;
+  branch.items.forEach((item,j)=>{
+    const itemAngle = angle - 15 + (30/itemsCount)*j; // spread items slightly
+    const itemRad = itemAngle * Math.PI / 180;
+    const itemX = centerX + Math.cos(itemRad) * itemRadius;
+    const itemY = centerY + Math.sin(itemRad) * itemRadius;
+    const itemNode = createNode(itemX, itemY, nodeW, nodeH, branch.items[j], false);
+    createLink(branchNode, itemNode);
+  });
+});
 
-    function makeNode(x,y,w,h,lines,isHeader){
-      const g = document.createElementNS(svgns,'g');
-      g.setAttribute('transform', `translate(${x},${y})`);
-      const rect = document.createElementNS(svgns,'rect');
-      rect.setAttribute('x',0);
-      rect.setAttribute('y',0);
-      rect.setAttribute('width',w);
-      rect.setAttribute('height',h);
-      rect.setAttribute('rx',10);
-      rect.setAttribute('ry',10);
-      g.appendChild(rect);
-      const fo = document.createElementNS(svgns,'foreignObject');
-      fo.setAttribute('x',12);
-      fo.setAttribute('y',8);
-      fo.setAttribute('width',w-24);
-      fo.setAttribute('height',h-16);
-      const div = document.createElement('div');
-      div.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
-      div.style.font = isHeader ? "600 14px Inter, Arial" : "13px Inter, Arial";
-      div.style.lineHeight = "1.15";
-      div.style.color = "#0f1724";
-      div.style.wordWrap = "break-word";
-      div.style.textAlign = "left";
-      div.style.height = (h-16) + "px";
-      div.style.overflow = "hidden";
-      div.innerHTML = lines.map(l=>`<div>${escapeHtml(l)}</div>`).join("");
-      fo.appendChild(div);
-      g.appendChild(fo);
-      svg.appendChild(g);
-      return {x,y,w,h,el:g};
-    }
+function createNode(x,y,w,h,text,isHeader){
+  const g = document.createElementNS(svgns,"g");
+  g.setAttribute("transform",`translate(${x-w/2},${y-h/2})`);
+  g.setAttribute("class","node");
+  const rect = document.createElementNS(svgns,"rect");
+  rect.setAttribute("width",w);
+  rect.setAttribute("height",h);
+  rect.setAttribute("rx",10);
+  rect.setAttribute("ry",10);
+  g.appendChild(rect);
 
-    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  const t = document.createElementNS(svgns,"text");
+  t.setAttribute("x",w/2);
+  t.setAttribute("y",h/2);
+  t.setAttribute("dominant-baseline","middle");
+  t.setAttribute("text-anchor","middle");
+  t.textContent = text;
+  g.appendChild(t);
+  svg.appendChild(g);
+  return g;
+}
 
-    const rootNode = makeNode(rootX, rootY, rootW, nodeH, ["Malware"], true);
+function createLink(parent, child){
+  const px = parseFloat(parent.getCTM().e) + parseFloat(parent.firstChild.getAttribute("width"))/2;
+  const py = parseFloat(parent.getCTM().f) + parseFloat(parent.firstChild.getAttribute("height"))/2;
+  const cx = parseFloat(child.getCTM().e) + parseFloat(child.firstChild.getAttribute("width"))/2;
+  const cy = parseFloat(child.getCTM().f) + parseFloat(child.firstChild.getAttribute("height"))/2;
 
-    const columnPositions = [];
-    const centerY = svgHeight/2;
-    const spacingTopBaseline = 20;
-
-    for (let i=0;i<columns;i++){
-      const colX = columnXStart + i * columnWidth;
-      const colHeight = columnHeights[i];
-      const startY = Math.max(margin.top + spacingTopBaseline, centerY - colHeight/2);
-      columnPositions.push({x:colX, startY});
-    }
-
-    const nodes = [rootNode];
-
-    for (let i=0;i<columns;i++){
-      const col = content[i];
-      const pos = columnPositions[i];
-      const headerY = pos.startY;
-      const headerNode = makeNode(pos.x, headerY, nodeW, nodeH, [col.title], true);
-      nodes.push(headerNode);
-      const items = col.items;
-      for (let j=0;j<items.length;j++){
-        const y = headerY + nodeH + 8 + j * (nodeH + vGap);
-        const lines = splitLines(items[j], 42, 3);
-        const child = makeNode(pos.x, y, nodeW, nodeH, lines, false);
-        nodes.push(child);
-        appendElbowLink(rootNode.x + rootNode.w, rootNode.y + rootNode.h/2, headerNode.x, headerNode.y + headerNode.h/2);
-        appendElbowLink(headerNode.x + headerNode.w, headerNode.y + headerNode.h/2, child.x, child.y + child.h/2);
-      }
-      if (items.length === 0) {
-        appendElbowLink(rootNode.x + rootNode.w, rootNode.y + rootNode.h/2, headerNode.x, headerNode.y + headerNode.h/2);
-      }
-    }
-
-    function appendElbowLink(sx, sy, tx, ty){
-      const midX = sx + (tx - sx) * 0.45;
-      const midX2 = sx + (tx - sx) * 0.65;
-      const d = `M ${sx} ${sy} C ${midX} ${sy} ${midX2} ${ty} ${tx} ${ty}`;
-      const p = document.createElementNS(svgns,'path');
-      p.setAttribute('d', d);
-      p.setAttribute('class','link');
-      p.setAttribute('marker-end','url(#arrow)');
-      svg.appendChild(p);
-    }
-
-    function splitLines(text, chars, maxLines){
-      const words = text.split(/\s+/);
-      const lines = [];
-      let cur = "";
-      for (let w of words){
-        if ((cur + " " + w).trim().length <= chars) cur = (cur + " " + w).trim();
-        else { lines.push(cur); cur = w; }
-      }
-      if (cur) lines.push(cur);
-      if (lines.length <= maxLines) return lines;
-      const res = lines.slice(0, maxLines);
-      res[res.length-1] = res[res.length-1].slice(0, Math.max(10, chars-6)) + '…';
-      return res;
-    }
-
-    window.addEventListener('resize', ()=>{});
-  </script>
+  const path = document.createElementNS(svgns,"path");
+  const dx = (cx-px)/2;
+  const dy = (cy-py)/2;
+  path.setAttribute("d", `M ${px} ${py} C ${px+dx} ${py} ${cx-dx} ${cy} ${cx} ${cy}`);
+  path.setAttribute("class","link");
+  svg.appendChild(path);
+}
+</script>
 </body>
 </html>
